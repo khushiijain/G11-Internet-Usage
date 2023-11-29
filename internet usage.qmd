@@ -310,3 +310,37 @@ list(country_ids = country_ids,
 ```{r}
 co_usage <- co_usage |> reformatting_full()
 ```
+
+
+### Research Goal
+
+**Exploring Internet Usage Patterns: A Comprehensive Analysis across European Regions and Countries**
+
+The objective of this research is to conduct a thorough analysis of internet usage patterns across Europe, with a focus on individuals' behaviors related to seeking health information, online learning, music streaming, and the impact of age, gender, and employment status. The study also encompasses an examination of internet access at both regional and national levels, as well as broadband internet coverage speeds over time.
+
+
+```{r}
+reg_int_access |>
+  mutate(Year = factor(Year)) |>
+  ggplot(aes(x= Year, y=Value, group = REG_ID))+
+  geom_line(size=0.1) +
+  labs(
+    title = "Internet Access in Regions Over Time",
+    x = "Year",
+    y = "Percentage of Households with Internet Access"
+  )
+```
+
+```{r}
+reg_shopping |>
+  mutate(Year = factor(Year)) |>
+  ggplot(aes(x= Year, y=Value, group = REG_ID))+
+  geom_line(size=0.1) +
+  labs(
+    title = "Internet Shopping in Regions Over Time",
+    x = "Year",
+    y = "Percentage of Individuals who shopped using internet"
+  )
+```
+
+We also have other variables related to internet usage and we will be processing the data for a detailed analysis pertaining to specific use over individual categories and location.
