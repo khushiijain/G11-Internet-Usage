@@ -4,4 +4,13 @@ author: "Arina and Khushi"
 format: html
 code-fold: true
 ---
+# 1. Configuration
+```{r}
+library(here)
+here::i_am("G11-Internet-Usage.Rproj")
+library(vroom)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
 
