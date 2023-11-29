@@ -15,6 +15,7 @@ library(vroom)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(knitr)
 ```
 
 ## Data Loading
@@ -35,11 +36,11 @@ reg_shopping <- vroom(here("data", "EuroStat-regional-goods-services.csv"))
 
 ## Links
 
-#### Git
+### Git
 
 Git-hub Project: [G11-Internet-Usage](https://github.com/khushiijain/G11-Internet-Usage)
 
-#### Data Sources
+### Data Sources
 
 ***Region-Level Data***
 
@@ -71,3 +72,26 @@ The data is available for many countries and we selected 29 European countries. 
 [\'Level of internet access - households\']{.underline}: [co_house_access](https://ec.europa.eu/eurostat/databrowser/view/tin00134__custom_8520113/default/table?lang=en)
 
 Percentage of households who have internet access at home. All forms of internet use are included. The population considered is aged 16 to 74.
+
+
+
+### Basic Information
+
+```{r function_table}
+basic_table <- function(.x) {
+.x |> 
+        summarise(nrow(.x), ncol(.x))
+}
+```
+
+```{r kables}
+kable((co_usage |> basic_table()), caption = "Internet Usage - Country", align = "cc")
+kable((co_broadband |> basic_table()), caption = "Broadband Access - Country", align = "cc")
+kable((co_house_access |> basic_table()), caption = "Internet Access - Country", align = "cc")
+kable((reg_broadband |> basic_table()), caption = "Broadband Access - Region", align = "cc")
+kable((reg_int_access |> basic_table()), caption = "Internet Access - Region", align = "cc")
+kable((reg_int_use |> basic_table()), caption = "Regular Internet Use - Region", align = "cc")
+kable((reg_shopping |> basic_table()), caption = "Internet use for buying Goods and Services - Region", align = "cc")
+
+```
+
