@@ -145,8 +145,8 @@ kable(head(reg_id_reg_broadband <- reg_broadband |>
   relocate(REG_ID)),
   caption = "First 6 rows of OECD Region IDs and Names")
 ```
-Where Territorial Level 1 represents a country, and 2 represents states and regions.
 
+Where Territorial Level 1 represents a country, and 2 represents states and regions.
 
 This following table establishes the connection between OECD regions and NUTS regions using the `inner_join` function.
 
@@ -192,7 +192,6 @@ caption = "Internet usage variables: individual type codes and names",
 align = "lr"
 )
 ```
-
 
 ```{r}
 kable(broadband_speed_id <- co_broadband |>
@@ -311,15 +310,13 @@ list(country_ids = country_ids,
 co_usage <- co_usage |> reformatting_full()
 ```
 
-
-
-
 # Research Goal
 
 **Exploring Internet Usage Patterns: A Comprehensive Analysis across European Regions and Countries**
 
 The objective of this research is to conduct a thorough analysis of internet usage patterns across Europe, with a focus on individuals' behaviors related to seeking health information, online learning, music streaming, and the impact of age, gender, and employment status. The study also encompasses an examination of internet access at both regional and national levels, as well as broadband internet coverage access and speeds over time.
 
+This plot visualizes the trend of internet access in various regions over time, offering a dynamic perspective on the changing landscape of household internet access.
 
 ```{r}
 reg_int_access |>
@@ -333,6 +330,8 @@ reg_int_access |>
   )
 ```
 
+This plot illustrates the evolution of internet shopping behavior across regions, providing insights into the changing trends in online commerce.
+
 ```{r}
 reg_shopping |>
   mutate(Year = factor(Year)) |>
@@ -344,6 +343,8 @@ reg_shopping |>
     y = "Percentage of Individuals who shopped using internet"
   )
 ```
+
+This specific plot focuses on the internet usage behavior of females in Albania, particularly in seeking health information, segmented by different age groups.
 
 ```{r}
 co_usage[["int_female"]] |>
@@ -358,5 +359,4 @@ co_usage[["int_female"]] |>
     y = "Percentage of Females")
 ```
 
-
-We also have other variables related to internet usage and we will be processing the data for a detailed analysis pertaining to specific use over individual categories and location.
+In addition to these specific analyses, the research will delve into other variables related to internet usage. The data will be processed to facilitate a detailed examination of specific internet activities across individual categories and locations. This comprehensive approach aims to provide a nuanced understanding of internet usage patterns in the European context.
