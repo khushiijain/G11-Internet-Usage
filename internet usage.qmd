@@ -65,14 +65,76 @@ The data is available for many countries and we selected 29 European countries. 
 \
 ***Country-Level Data***
 
-[Link for data source of custom dataset for \'Individuals - internet activities\' (all relevant variables selected\*):]{.underline} [co_usage](https://ec.europa.eu/eurostat/databrowser/view/ISOC_CI_AC_I__custom_8519721/default/table?lang=en&page=time:2022)
+[Link for data source of custom dataset for 'Individuals - internet activities' (all relevant variables selected\*):]{.underline} [co_usage](https://ec.europa.eu/eurostat/databrowser/view/ISOC_CI_AC_I__custom_8519721/default/table?lang=en&page=time:2022)
 
-[\'Broadband internet coverage by speed\']{.underline}: [co_broadband](https://ec.europa.eu/eurostat/databrowser/view/isoc_cbs__custom_8519699/default/table?lang=en)
+['Broadband internet coverage by speed']{.underline}: [co_broadband](https://ec.europa.eu/eurostat/databrowser/view/isoc_cbs__custom_8519699/default/table?lang=en)
 
-[\'Level of internet access - households\']{.underline}: [co_house_access](https://ec.europa.eu/eurostat/databrowser/view/tin00134__custom_8520113/default/table?lang=en)
+['Level of internet access - households']{.underline}: [co_house_access](https://ec.europa.eu/eurostat/databrowser/view/tin00134__custom_8520113/default/table?lang=en)
 
 Percentage of households who have internet access at home. All forms of internet use are included. The population considered is aged 16 to 74.
 
+
+### Variable Description
+
+```{r function_region_ID}
+reformatting_region <- function(int_df) {
+region_ids <- int_df |>
+  distinct(geo, `Geopolitical entity (reporting)`) |>
+  rename(REG_ID = geo, Region = `Geopolitical entity (reporting)`)
+}
+```
+
+**Region-Level Data Description**
+
+We possess region-level data from OECD and Eurostat, where the region IDs are specified using country initials and a unique number allotted to each region.
+
+[Individuals Regularly Using the Internet by NUTS 2 Regions]{.underline}
+
+```{r}
+kable(head(reg_int_use_reg_id <- reg_int_use |> reformatting_region()), caption = "First 6 rows of Region IDs and Names", align = "cc")
+```
+
+[Households that have internet access at home by NUTS 2 regions]{.underline}
+
+```{r}
+kable(head(reg_int_access_reg_id <- reg_int_access |> reformatting_region(), caption = "First 6 rows of Region IDs and Names", align = "cc"))
+```
+
+```{r}
+# OECD region IDs
+reg_id_reg_broadband <- reg_broadband |>
+  distinct(Region, REG_ID, TL) |>
+  group_by(REG_ID)
+```
+
+This table establishes the connection between OECD regions and NUTS regions using the `inner_join` function.
+
+```{r}
+kable(head(reg_ids <- reg_id_reg_broadband |>
+  inner_join(reg_int_use_reg_id, by = join_by(REG_ID)), caption = "First 6 rows of Region IDs and Names", align = "cc"))
+```
+
+**Country-Level Data Description**
+
+The country-level data comprises 15 variables analyzing various types of internet usage, such as seeking health information, online learning, and music streaming. The following table represents the indicator codes and associated information.
+
+```{r}
+kable(
+  indicator_id_co_usage <- co_usage |>
+  distinct(indic_is, `Information society indicator`) |>
+  group_by(indic_is)
+)
+```
+
+Our internet usage data is categorized based on individuals' different ages, sexes, and employment statuses.
+
+```{r}
+kable(
+individual_type_co_usage <- co_usage |>
+  distinct(ind_type, `Individual type`) |>
+  group_by(ind_type)
+)
+```
 
 
 ### Basic Information
@@ -94,4 +156,3 @@ kable((reg_int_use |> basic_table()), caption = "Regular Internet Use - Region",
 kable((reg_shopping |> basic_table()), caption = "Internet use for buying Goods and Services - Region", align = "cc")
 
 ```
-
