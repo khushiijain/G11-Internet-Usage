@@ -4,13 +4,27 @@ author: "Arina and Khushi"
 format: html
 code-fold: true
 ---
-# 1. Configuration
+Configuration
 ```{r}
+#| message: false
 library(here)
 here::i_am("G11-Internet-Usage.Rproj")
 library(vroom)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+```
+
+## Data Loading
+```{r}
+#| message: false
+#| warning: false
+co_usage <- vroom(here("data", "EuroStat-full-internet-use.csv"))
+co_broadband <- vroom(here("data", "EuroStat-broadband-coverage-speed.csv"))
+co_house_access <- vroom(here("data", "EuroStat-household-internet-access.csv"))
+reg_broadband <- vroom(here("data", "OECD-regional-internet-broadband.csv"))
+reg_int_access <- vroom(here("data", "EuroStat-regional-internet-access.csv"))
+reg_int_use <- vroom(here("data", "EuroStat-regional-internet-usage.csv"))
+reg_shopping <- vroom(here("data", "EuroStat-regional-goods-services.csv"))
 ```
 
