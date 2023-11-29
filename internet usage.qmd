@@ -76,6 +76,33 @@ The data is available for many countries and we selected 29 European countries. 
 Percentage of households who have internet access at home. All forms of internet use are included. The population considered is aged 16 to 74.
 
 
+### Basic Information
+
+```{r function_table}
+basic_table <- function(.x) {
+.x |> 
+        summarise(
+          Rows = nrow(.x),
+          Columns = ncol(.x),
+          `Number of Years Observed` = n_distinct(select(.x, starts_with("TIME"))),
+          `Number of Regions/Countries` = n_distinct(select(.x, contains("geo") | contains("Region")))
+            )
+}
+
+```
+
+
+```{r files_table}
+kable((reg_broadband |> basic_table()), caption = "Broadband Access - Region", align = "cc")
+kable((reg_int_access |> basic_table()), caption = "Internet Access - Region", align = "cc")
+kable((reg_int_use |> basic_table()), caption = "Regular Internet Use - Region", align = "cc")
+kable((reg_shopping |> basic_table()), caption = "Internet use for buying Goods and Services - Region", align = "cc")
+kable((co_usage |> basic_table()), caption = "Internet Usage - Country", align = "cc")
+kable((co_broadband |> basic_table()), caption = "Broadband Access - Country", align = "cc")
+kable((co_house_access |> basic_table()), caption = "Internet Access - Country", align = "cc")
+```
+
+
 ### Variable Description
 
 ```{r function_region_ID}
@@ -148,32 +175,6 @@ individual_type_co_usage <- co_usage |>
   group_by(ind_type)
 )
 ```
-
-
-
-
-
-### Basic Information
-
-```{r function_table}
-basic_table <- function(.x) {
-.x |> 
-        summarise(nrow(.x), ncol(.x))
-}
-```
-
-```{r kables}
-kable((co_usage |> basic_table()), caption = "Internet Usage - Country", align = "cc")
-kable((co_broadband |> basic_table()), caption = "Broadband Access - Country", align = "cc")
-kable((co_house_access |> basic_table()), caption = "Internet Access - Country", align = "cc")
-kable((reg_broadband |> basic_table()), caption = "Broadband Access - Region", align = "cc")
-kable((reg_int_access |> basic_table()), caption = "Internet Access - Region", align = "cc")
-kable((reg_int_use |> basic_table()), caption = "Regular Internet Use - Region", align = "cc")
-kable((reg_shopping |> basic_table()), caption = "Internet use for buying Goods and Services - Region", align = "cc")
-
-```
-
-
 
 
 # Cleaning
