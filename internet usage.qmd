@@ -181,7 +181,7 @@ kable(
   align = "lr")
 ```
 
-Our internet usage data is categorized based on individuals' different ages, sexes, and employment statuses.
+Our internet usage data is categorised based on individuals' different ages, sexes, and employment statuses.
 
 ```{r}
 kable(
@@ -316,7 +316,7 @@ co_usage <- co_usage |> reformatting_full()
 
 The objective of this research is to conduct a thorough analysis of internet usage patterns across Europe, with a focus on individuals' behaviors related to seeking health information, online learning, music streaming, and the impact of age, gender, and employment status. The study also encompasses an examination of internet access at both regional and national levels, as well as broadband internet coverage access and speeds over time.
 
-This plot visualizes the trend of internet access in various regions over time, offering a dynamic perspective on the changing landscape of household internet access.
+This plot visualises the trend of internet access in various regions over time, offering a dynamic perspective on the changing landscape of household internet access.
 
 ```{r}
 reg_int_access |>
