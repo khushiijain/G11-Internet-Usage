@@ -167,7 +167,8 @@ kable(country_ids <- co_broadband |>
   distinct(geo, `Geopolitical entity (reporting)`) |>
   rename(REG_ID = geo, 
          Country = `Geopolitical entity (reporting)`),
-  caption = "EuroStat Country codes and names")
+  caption = "EuroStat Country codes and names",
+  align = "cc")
 ```
 
 ```{r}
@@ -175,7 +176,8 @@ kable(
   indicator_id_co_usage <- co_usage |>
   distinct(indic_is, `Information society indicator`) |>
   group_by(indic_is),
-  caption = "Internet usage variables: indicator codes and names"
+  caption = "Internet usage variables: indicator codes and names",
+  align = "lc"
 )
 ```
 
@@ -186,7 +188,8 @@ kable(
 individual_type_co_usage <- co_usage |>
   distinct(ind_type, `Individual type`) |>
   group_by(ind_type),
-caption = "Internet usage variables: individual type codes and names"
+caption = "Internet usage variables: individual type codes and names",
+align = "lr"
 )
 ```
 
@@ -194,7 +197,8 @@ caption = "Internet usage variables: individual type codes and names"
 ```{r}
 kable(broadband_speed_id <- co_broadband |>
   distinct(inet_spd, `Internet speed`),
-  caption = "Broadband speed: codes and description")
+  caption = "Broadband speed: codes and description",
+  align = "lr")
 ```
 
 # Cleaning
@@ -261,7 +265,7 @@ Country level broadband access speed is reformatted and pivoted to display the d
 
 ### Formatting EuroStat full internet usage dataset by country
 
-First, a function is created to split the dataset into comprehensible country, indicator, and individual type codes, as well as removal of unnecessary columns. Then, pivoting the data allows for further separation by Sex and Employment status. All these datasets are places in a list.
+First, a function is created to split the dataset into comprehensible country, indicator, and individual type codes, as well as removal of unnecessary columns. Then, pivoting the data allows for further separation by Sex and Employment status. All these datasets are placed in a list.
 
 ```{r internet_usage_split_function}
 reformatting_full <- function(int_df) {
