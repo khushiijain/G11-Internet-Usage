@@ -18,6 +18,7 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(knitr)
+theme_set(theme_bw())
 ```
 
 ## Data Loading
@@ -70,7 +71,7 @@ The data is available for many countries and we selected 29 European countries. 
 
 [Individuals - internet activities:]{.underline} [co_usage](https://ec.europa.eu/eurostat/databrowser/view/ISOC_CI_AC_I__custom_8519721/default/table?lang=en&page=time:2022)
 
-This is a custom dataset, with all the relevant variables selected and available through the link. Consists of yearly data, covering per country purpose for usage of internet. The questionnaire for the data is updated each year to reflect the evolving situation of information and communication technologies. Indicators from the survey are used for benchmarking purposes. The indicators provided are drawn from the following list of subjects: access to and use of ICTs by individuals and/or in households, use of the internet and other electronic networks for different purposes (e-commerce for example) by individuals and/or in households, ICT security and trust, ICT competence and skills, barriers to the use of ICT and the Internet, perceived effects of ICT usage on individuals and/or on households, use of ICT by individuals to exchange information and services with governments and public administrations (e-government), access to and use of technologies enabling connection to the Internet or other networks from anywhere at any time (ubiquitous connectivity).
+This is a custom dataset, with all the relevant variables selected and available through the link. Consists of yearly data, covering per country purpose for usage of internet. The questionnaire for the data is updated each year to reflect the evolving situation of information and communication technologies. Indicators from the survey are used for benchmarking purposes. The indicators provided are drawn from the following list of subjects: access to and use of ICTs by individuals and/or in households, use of the internet and other electronic networks for different purposes (e-commerce for example) by individuals and/or in households, barriers to the use of ICT and the Internet, perceived effects of ICT usage on individuals and/or on households, use of ICT by individuals to exchange information and services with governments and public administrations (e-government), access to and use of technologies enabling connection to the Internet or other networks from anywhere at any time (ubiquitous connectivity).
 
 [Broadband internet coverage by speed]{.underline}: [co_broadband](https://ec.europa.eu/eurostat/databrowser/view/isoc_cbs__custom_8519699/default/table?lang=en)
 
@@ -80,7 +81,7 @@ Total country coverage by different download speed categories. The indicators me
 
 Percentage of households who have internet access at home. All forms of internet use are included. The population considered is aged 16 to 74.
 
-### Basic Information
+## Basic Information of Raw Data files
 
 ```{r function_table}
 basic_table <- function(.x) {
@@ -137,8 +138,6 @@ kable(head(reg_int_use_reg_id <- reg_int_use |>
 
 [Territory level and Region ID OECD]{.underline}
 
-Where Territorial Level 1 represents a country, and 2 represents states and regions.
-
 ```{r}
 kable(head(reg_id_reg_broadband <- reg_broadband |>
   distinct(Region, REG_ID, TL) |>
@@ -146,6 +145,8 @@ kable(head(reg_id_reg_broadband <- reg_broadband |>
   relocate(REG_ID)),
   caption = "First 6 rows of OECD Region IDs and Names")
 ```
+Where Territorial Level 1 represents a country, and 2 represents states and regions.
+
 
 This following table establishes the connection between OECD regions and NUTS regions using the `inner_join` function.
 
@@ -160,7 +161,7 @@ kable(head(reg_ids <- reg_id_reg_broadband |>
 
 **Country-Level Data Description**
 
-The country-level data comprises 15 variables analyzing various types of internet usage, such as seeking health information, online learning, and music streaming. The following tables represents the country codes, indicator codes and associated information.
+The country-level data is comprised of 15 variables analysing various types of internet usage, such as seeking health information, online learning, and music streaming. The following tables represent the country codes, indicator codes and associated information.
 
 ```{r}
 kable(country_ids <- co_broadband |>
@@ -177,8 +178,7 @@ kable(
   distinct(indic_is, `Information society indicator`) |>
   group_by(indic_is),
   caption = "Internet usage variables: indicator codes and names",
-  align = "lc"
-)
+  align = "lr")
 ```
 
 Our internet usage data is categorized based on individuals' different ages, sexes, and employment statuses.
@@ -312,18 +312,20 @@ co_usage <- co_usage |> reformatting_full()
 ```
 
 
-### Research Goal
+
+
+# Research Goal
 
 **Exploring Internet Usage Patterns: A Comprehensive Analysis across European Regions and Countries**
 
-The objective of this research is to conduct a thorough analysis of internet usage patterns across Europe, with a focus on individuals' behaviors related to seeking health information, online learning, music streaming, and the impact of age, gender, and employment status. The study also encompasses an examination of internet access at both regional and national levels, as well as broadband internet coverage speeds over time.
+The objective of this research is to conduct a thorough analysis of internet usage patterns across Europe, with a focus on individuals' behaviors related to seeking health information, online learning, music streaming, and the impact of age, gender, and employment status. The study also encompasses an examination of internet access at both regional and national levels, as well as broadband internet coverage access and speeds over time.
 
 
 ```{r}
 reg_int_access |>
   mutate(Year = factor(Year)) |>
   ggplot(aes(x= Year, y=Value, group = REG_ID))+
-  geom_line(size=0.1) +
+  geom_line(linewidth=0.05) +
   labs(
     title = "Internet Access in Regions Over Time",
     x = "Year",
@@ -335,12 +337,26 @@ reg_int_access |>
 reg_shopping |>
   mutate(Year = factor(Year)) |>
   ggplot(aes(x= Year, y=Value, group = REG_ID))+
-  geom_line(size=0.1) +
+  geom_line(linewidth=0.05) +
   labs(
     title = "Internet Shopping in Regions Over Time",
     x = "Year",
     y = "Percentage of Individuals who shopped using internet"
   )
 ```
+
+```{r}
+co_usage[["int_female"]] |>
+  pivot_longer(cols = 4:8, names_to = "Ages") |>
+  filter(indic_is == "I_IHIF", REG_ID == "AL") |>
+  mutate(Year = factor(Year)) |>
+  ggplot(aes(x= Year, y=value, group=Ages, color=Ages))+
+  geom_line(linewidth=0.5)+
+  labs(
+    title = "Seeking Health information on the internet in Albania by Age group: Female ",
+    x = "Year",
+    y = "Percentage of Females")
+```
+
 
 We also have other variables related to internet usage and we will be processing the data for a detailed analysis pertaining to specific use over individual categories and location.
