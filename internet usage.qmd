@@ -4,7 +4,9 @@ author: "Arina and Khushi"
 format: html
 code-fold: true
 ---
+
 Configuration
+
 ```{r}
 #| message: false
 library(here)
@@ -16,6 +18,7 @@ library(ggplot2)
 ```
 
 ## Data Loading
+
 ```{r}
 #| message: false
 #| warning: false
@@ -28,3 +31,43 @@ reg_int_use <- vroom(here("data", "EuroStat-regional-internet-usage.csv"))
 reg_shopping <- vroom(here("data", "EuroStat-regional-goods-services.csv"))
 ```
 
+# Description
+
+## Links
+
+#### Git
+
+Git-hub Project: [G11-Internet-Usage](https://github.com/khushiijain/G11-Internet-Usage)
+
+#### Data Sources
+
+***Region-Level Data***
+
+[Households that have internet access at home by NUTS 2 regions:]{.underline} [reg_int_access](https://ec.europa.eu/eurostat/databrowser/view/tgs00047/default/table?lang=en)
+
+The access of households to internet is measured as percentage of households where any member of the household has the possibility to access the internet from home. 
+
+[Individuals who ordered goods or services over the internet for private use in the last year by NUTS 2 regions:]{.underline} [reg_shopping](https://ec.europa.eu/eurostat/databrowser/view/tgs00052/default/map?lang=en)
+
+Persons who bought or ordered goods or services (i.e. food, groceries, household goods, films, music, books, magazines, newspapers, clothes, sports goods, computer software or hardware, electronic equipment, shares, financial services, insurances, travel or holiday accommodation, tickets, lotteries or betting and other) over the internet during the last year.
+
+[Individuals regularly using the internet by NUTS 2 regions:]{.underline} [red_int_use](https://ec.europa.eu/eurostat/databrowser/view/tgs00050/default/table?lang=en)
+
+Regular users of the internet are persons who use the internet on average at least once a week, every day or almost every day.
+
+***OECD:***
+
+Website reach: Regional Demography -\> Regional Social and Environmental indicators -\> Internet broadband access: [reg_broadband](https://stats.oecd.org/Index.aspx?DataSetCode=REGION_DEMOGR#)
+
+The data is available for many countries and we selected 29 European countries. To filter on the OECD website, we must go to the ***Customise*** -\> ***Selection -\> Region*** and select the 29 countries and their regions.
+
+\
+***Country-Level Data***
+
+[Link for data source of custom dataset for \'Individuals - internet activities\' (all relevant variables selected\*):]{.underline} [co_usage](https://ec.europa.eu/eurostat/databrowser/view/ISOC_CI_AC_I__custom_8519721/default/table?lang=en&page=time:2022)
+
+[\'Broadband internet coverage by speed\']{.underline}: [co_broadband](https://ec.europa.eu/eurostat/databrowser/view/isoc_cbs__custom_8519699/default/table?lang=en)
+
+[\'Level of internet access - households\']{.underline}: [co_house_access](https://ec.europa.eu/eurostat/databrowser/view/tin00134__custom_8520113/default/table?lang=en)
+
+Percentage of households who have internet access at home. All forms of internet use are included. The population considered is aged 16 to 74.
