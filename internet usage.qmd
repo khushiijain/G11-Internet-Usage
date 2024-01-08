@@ -2,12 +2,12 @@
 title: "Internet Usage"
 author: "Arina and Khushi"
 format: 
-  html: default
-  pdf: default
-code-fold: true
+  html: 
+    echo: false 
+  pdf: 
+    echo: false
+  wordcount-html: default
 ---
-
-Configuration
 
 ```{r}
 #| message: false
@@ -21,7 +21,16 @@ library(knitr)
 theme_set(theme_bw())
 ```
 
-## Data Loading
+# Research Question
+
+**Exploring Internet Usage Patterns: A Comprehensive Analysis across European Regions and Countries**
+
+The objective of this research is to conduct a thorough analysis of internet usage patterns across Europe, with a focus on individuals' behaviors related to seeking health information, online learning, music streaming, and the impact of age, gender, and employment status. The study also encompasses an examination of internet access at both regional and national levels, as well as broadband internet coverage access and speeds over time.
+
+The research will also delve into other variables related to internet usage. The data will be processed to facilitate a detailed examination of specific internet activities across individual categories and locations. This comprehensive approach aims to provide a nuanced understanding of internet usage patterns in the European context.
+
+
+
 
 ```{r}
 #| message: false
@@ -35,27 +44,21 @@ reg_int_use <- vroom(here("data", "EuroStat-regional-internet-usage.csv"))
 reg_shopping <- vroom(here("data", "EuroStat-regional-goods-services.csv"))
 ```
 
-# Description
-
-## Links
-
-### Git
-
-Git-hub Project: [G11-Internet-Usage](https://github.com/khushiijain/G11-Internet-Usage)
+# Data Sets Description
 
 ### Data Sources
 
 ***Region-Level Data***
 
-[Households that have internet access at home by NUTS 2 regions:]{.underline} [reg_int_access](https://ec.europa.eu/eurostat/databrowser/view/tgs00047/default/table?lang=en)
+[Households that have internet access at home by NUTS 2 regions:]{.underline}
 
 The access of households to internet is measured as percentage of households where any member of the household has the possibility to access the internet from home.
 
-[Individuals who ordered goods or services over the internet for private use in the last year by NUTS 2 regions:]{.underline} [reg_shopping](https://ec.europa.eu/eurostat/databrowser/view/tgs00052/default/map?lang=en)
+[Individuals who ordered goods or services over the internet for private use in the last year by NUTS 2 regions:]{.underline}
 
 Persons who bought or ordered goods or services (i.e. food, groceries, household goods, films, music, books, magazines, newspapers, clothes, sports goods, computer software or hardware, electronic equipment, shares, financial services, insurances, travel or holiday accommodation, tickets, lotteries or betting and other) over the internet during the last year.
 
-[Individuals regularly using the internet by NUTS 2 regions:]{.underline} [red_int_use](https://ec.europa.eu/eurostat/databrowser/view/tgs00050/default/table?lang=en)
+[Individuals regularly using the internet by NUTS 2 regions:]{.underline}
 
 Regular users of the internet are persons who use the internet on average at least once a week, every day or almost every day.
 
@@ -63,21 +66,19 @@ Regular users of the internet are persons who use the internet on average at lea
 
 [Regional Social and Environmental indicators: Internet broadband access:]{.underline}
 
-Website reach: Regional Demography -\> Regional Social and Environmental indicators -\> Internet broadband access: [reg_broadband](https://stats.oecd.org/Index.aspx?DataSetCode=REGION_DEMOGR#)
-
-The data is available for many countries and we selected 29 European countries. To filter on the OECD website, we must go to the ***Customise*** -\> ***Selection*** -\> ***Region*** and select the 29 countries and their regions.
+The data is available for many countries and we selected 29 European countries. 
 
 ***Country-Level Data***
 
-[Individuals - internet activities:]{.underline} [co_usage](https://ec.europa.eu/eurostat/databrowser/view/ISOC_CI_AC_I__custom_8519721/default/table?lang=en&page=time:2022)
+[Individuals - internet activities:]{.underline}
 
 This is a custom dataset, with all the relevant variables selected and available through the link. Consists of yearly data, covering per country purpose for usage of internet. The questionnaire for the data is updated each year to reflect the evolving situation of information and communication technologies. Indicators from the survey are used for benchmarking purposes. The indicators provided are drawn from the following list of subjects: access to and use of ICTs by individuals and/or in households, use of the internet and other electronic networks for different purposes (e-commerce for example) by individuals and/or in households, barriers to the use of ICT and the Internet, perceived effects of ICT usage on individuals and/or on households, use of ICT by individuals to exchange information and services with governments and public administrations (e-government), access to and use of technologies enabling connection to the Internet or other networks from anywhere at any time (ubiquitous connectivity).
 
-[Broadband internet coverage by speed]{.underline}: [co_broadband](https://ec.europa.eu/eurostat/databrowser/view/isoc_cbs__custom_8519699/default/table?lang=en)
+[Broadband internet coverage by speed]{.underline}:
 
 Total country coverage by different download speed categories. The indicators measure the coverage by broadband internet as a % of households.
 
-[Level of internet access - households]{.underline}: [co_house_access](https://ec.europa.eu/eurostat/databrowser/view/tin00134__custom_8520113/default/table?lang=en)
+[Level of internet access - households]{.underline}:
 
 Percentage of households who have internet access at home. All forms of internet use are included. The population considered is aged 16 to 74.
 
@@ -148,7 +149,7 @@ kable(head(reg_id_reg_broadband <- reg_broadband |>
 
 Where Territorial Level 1 represents a country, and 2 represents states and regions.
 
-This following table establishes the connection between OECD regions and NUTS regions using the `inner_join` function.
+This following table establishes the connection between OECD regions and NUTS regions.
 
 ```{r}
 kable(head(reg_ids <- reg_id_reg_broadband |>
@@ -200,9 +201,7 @@ kable(broadband_speed_id <- co_broadband |>
   align = "lr")
 ```
 
-# Cleaning
 
-For ease of cleaning, multiple functions have been created.
 
 ```{r single_value_function}
 single_value <- function(my_var) {
@@ -210,17 +209,11 @@ single_value <- function(my_var) {
 }
 ```
 
-## Formatting OECD data
-
-```{r}
+```{r cleaning_start}
 reg_broadband <- reg_broadband |>
   select(-where(anyNA), -where(single_value), -TIME, 
          -TL, -`Territory level and Typology`, -Region)
 ```
-
-This code removes the unnecessary columns, leaving the OECD regional broadband access data to consist of the Regional ID, Year, and percentage Value.
-
-## Formatting EuroStat regional data
 
 ```{r regional_basic_function}
 reformatting <- function(int_df) {
@@ -243,15 +236,9 @@ reg_int_access <- reg_int_access |> reformatting()
 reg_shopping <- reg_shopping |> reformatting()
 ```
 
-Data for regional "Individual regular internet use", "Internet access", and "Goods and services shopping" also now contain only the Regional ID, Year, and Value variables.
-
-## Formatting EuroStat country data
-
 ```{r}
 co_house_access <- co_house_access |> reformatting()
 ```
-
-Reformatting is done, same as previously, for country level Internet access.
 
 ```{r}
 co_broadband <- co_broadband |> reformatting()
@@ -259,12 +246,6 @@ co_broadband <- co_broadband |>
   select(-`Internet speed`) |>
   pivot_wider(names_from = inet_spd, values_from = Value)
 ```
-
-Country level broadband access speed is reformatted and pivoted to display the different speeds as additional variables
-
-### Formatting EuroStat full internet usage dataset by country
-
-First, a function is created to split the dataset into comprehensible country, indicator, and individual type codes, as well as removal of unnecessary columns. Then, pivoting the data allows for further separation by Sex and Employment status. All these datasets are placed in a list.
 
 ```{r internet_usage_split_function}
 reformatting_full <- function(int_df) {
@@ -306,15 +287,15 @@ list(country_ids = country_ids,
 }
 ```
 
-```{r}
+```{r cleaning_end}
 co_usage <- co_usage |> reformatting_full()
 ```
 
-# Research Goal
 
-**Exploring Internet Usage Patterns: A Comprehensive Analysis across European Regions and Countries**
 
-The objective of this research is to conduct a thorough analysis of internet usage patterns across Europe, with a focus on individuals' behaviors related to seeking health information, online learning, music streaming, and the impact of age, gender, and employment status. The study also encompasses an examination of internet access at both regional and national levels, as well as broadband internet coverage access and speeds over time.
+
+# Data Analysis
+
 
 This plot visualises the trend of internet access in various regions over time, offering a dynamic perspective on the changing landscape of household internet access.
 
@@ -359,4 +340,85 @@ co_usage[["int_female"]] |>
     y = "Percentage of Females")
 ```
 
-In addition to these specific analyses, the research will delve into other variables related to internet usage. The data will be processed to facilitate a detailed examination of specific internet activities across individual categories and locations. This comprehensive approach aims to provide a nuanced understanding of internet usage patterns in the European context.
+
+
+
+
+
+
+
+
+
+
+# Conclusion
+
+
+
+
+
+
+# Appendix
+
+## Links 
+### Git
+Git-hub Project: [G11-Internet-Usage](https://github.com/khushiijain/G11-Internet-Usage)
+
+### Data Sources
+[Households that have internet access at home by NUTS 2 regions:]{.underline} [reg_int_access](https://ec.europa.eu/eurostat/databrowser/view/tgs00047/default/table?lang=en)
+
+[Individuals who ordered goods or services over the internet for private use in the last year by NUTS 2 regions:]{.underline} [reg_shopping](https://ec.europa.eu/eurostat/databrowser/view/tgs00052/default/map?lang=en)
+
+[Individuals regularly using the internet by NUTS 2 regions:]{.underline} [red_int_use](https://ec.europa.eu/eurostat/databrowser/view/tgs00050/default/table?lang=en)
+
+[Regional Social and Environmental indicators: Internet broadband access:]{.underline}
+
+Website reach: Regional Demography -\> Regional Social and Environmental indicators -\> Internet broadband access: [reg_broadband](https://stats.oecd.org/Index.aspx?DataSetCode=REGION_DEMOGR#)
+
+The data is available for many countries and we selected 29 European countries. To filter on the OECD website, we must go to the ***Customise*** -\> ***Selection*** -\> ***Region*** and select the 29 countries and their regions.
+
+[Individuals - internet activities:]{.underline} [co_usage](https://ec.europa.eu/eurostat/databrowser/view/ISOC_CI_AC_I__custom_8519721/default/table?lang=en&page=time:2022)
+
+[Broadband internet coverage by speed]{.underline}: [co_broadband](https://ec.europa.eu/eurostat/databrowser/view/isoc_cbs__custom_8519699/default/table?lang=en)
+
+[Level of internet access - households]{.underline}: [co_house_access](https://ec.europa.eu/eurostat/databrowser/view/tin00134__custom_8520113/default/table?lang=en)
+
+
+
+## Cleaning
+
+For ease of cleaning, multiple functions have been created.
+
+### Formatting OECD data
+
+A code removes the unnecessary columns, leaving the OECD regional broadband access data to consist of the Regional ID, Year, and percentage Value.
+
+### Formatting EuroStat regional data
+
+Data for regional "Individual regular internet use", "Internet access", and "Goods and services shopping" also now contain only the Regional ID, Year, and Value variables.
+
+### Formatting EuroStat country data
+
+Reformatting is done, same as previously, for country level Internet access.
+
+Country level broadband access speed is reformatted and pivoted to display the different speeds as additional variables
+
+#### Formatting EuroStat full internet usage dataset by country
+
+First, a function is created to split the dataset into comprehensible country, indicator, and individual type codes, as well as removal of unnecessary columns. Then, pivoting the data allows for further separation by Sex and Employment status. All these datasets are placed in a list.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
