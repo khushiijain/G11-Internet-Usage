@@ -25,7 +25,7 @@ theme_set(theme_bw())
 
 **Exploring Internet Usage Patterns: A Comprehensive Analysis across European Regions and Countries**
 
-The objective of this research is to conduct a thorough analysis of internet usage patterns across Europe, with a focus on individuals' behaviors related to seeking health information, online learning, music streaming, and the impact of age, gender, and employment status. The study also encompasses an examination of internet access at both regional and national levels, as well as broadband internet coverage access and speeds over time.
+The objective of this research is to conduct a thorough analysis of internet usage patterns across Europe, with a focus on individuals' behaviour related to seeking health information, online learning, music streaming, and the impact of age, gender, and employment status. The study also encompasses an examination of internet access at both regional and national levels, as well as broadband internet coverage access and speeds over time.
 
 The research will also delve into other variables related to internet usage. The data will be processed to facilitate a detailed examination of specific internet activities across individual categories and locations. This comprehensive approach aims to provide a nuanced understanding of internet usage patterns in the European context.
 
@@ -52,7 +52,7 @@ reg_shopping <- vroom(here("data", "EuroStat-regional-goods-services.csv"))
 
 [Households that have internet access at home by NUTS 2 regions:]{.underline}
 
-The access of households to internet is measured as percentage of households where any member of the household has the possibility to access the internet from home.
+The access of households to internet is measured as percentage of households where any member of the household has the possibility to access the internet from home. This data is produced through an annual survey which is updated each year to reflect the evolving situation of information and communication technologies.
 
 [Individuals who ordered goods or services over the internet for private use in the last year by NUTS 2 regions:]{.underline}
 
@@ -60,7 +60,7 @@ Persons who bought or ordered goods or services (i.e. food, groceries, household
 
 [Individuals regularly using the internet by NUTS 2 regions:]{.underline}
 
-Regular users of the internet are persons who use the internet on average at least once a week, every day or almost every day.
+Regular users of the internet are persons who use the internet on average at least once a week, every day or almost every day. The ICT survey covers those households having at least one member in the age group 16 to 74 years old. Internet access of households refers to the percentage of households that have an internet access, so that anyone in the household could use the internet.
 
 ***Region and Country-Level Data:***
 
@@ -76,11 +76,11 @@ This is a custom dataset, with all the relevant variables selected and available
 
 [Broadband internet coverage by speed]{.underline}:
 
-Total country coverage by different download speed categories. The indicators measure the coverage by broadband internet as a % of households.
+Total country coverage by different download speed categories. The indicators measure the coverage by broadband internet as a % of households. Data is collected in a survey of National Regulatory Authorities and operators on a regional, NUTS3 level. The provided data is then combined to show total country coverage by different broadband technologies and download speed categories, taking into account operator and technology overlaps.
 
 [Level of internet access - households]{.underline}:
 
-Percentage of households who have internet access at home. All forms of internet use are included. The population considered is aged 16 to 74.
+Percentage of households who have internet access at home. The survey collects data of internet users, individuals who have used the internet in the three months prior to the survey. Regular internet users are individuals who used the internet, on average, at least once a week in the three months prior to the survey. All forms of internet use are included. The population considered is aged 16 to 74.
 
 ## Basic Information of Raw Data files
 
