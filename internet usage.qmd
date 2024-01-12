@@ -4,6 +4,8 @@ author: "Arina and Khushi"
 format: 
   html: 
     echo: false 
+    toc: true
+    toc_depth: 2
   pdf: 
     echo: false
   wordcount-html: default
@@ -326,11 +328,9 @@ bb_map_co_13 <- co_broadband |>
   st_as_sf()
 ```
 
-Broadband access by country at 30 megabits per second (Mbps):
 
 ::: {layout-ncol="2"}
 ::: {#2013}
-in 2013
 
 ```{r country_broadband_map_2013}
 bb_map_co_13 |>
@@ -343,12 +343,13 @@ bb_map_co_13 |>
     na.value = "gray80") + 
   scale_x_continuous(limits = c(-10, 35)) +
   scale_y_continuous(limits = c(35, 65)) +
-  theme_void()
+  theme_void() +
+  labs(title = "Broadband access by country at 30Mbps:",
+       subtitle = "in 2013")
 ```
 :::
 
 ::: {#2022}
-in 2022
 
 ```{r country_broadband_map_2022}
 bb_map_co_22 |>
@@ -360,7 +361,9 @@ bb_map_co_22 |>
     na.value = "gray80") + 
   scale_x_continuous(limits = c(-10, 35)) +
   scale_y_continuous(limits = c(35, 65)) +
-  theme_void()
+  theme_void() +
+  labs(title = "Broadband access by country at 30Mbps:",
+       subtitle = "in 2022")
 ```
 :::
 :::
@@ -380,12 +383,9 @@ bb_map_co_13_100 <- co_broadband |>
   st_as_sf()
 ```
 
-Broadband access by country at 100 megabits per second (Mbps):
 
 ::: {layout-ncol="2"}
 <div>
-
-in 2013
 
 ```{r country_broadband_map_2013_100mbps}
 bb_map_co_13_100 |>
@@ -398,14 +398,15 @@ bb_map_co_13_100 |>
     na.value = "gray80") + 
   scale_x_continuous(limits = c(-10, 35)) +
   scale_y_continuous(limits = c(35, 65)) +
-  theme_void()
+  theme_void() +
+  labs(title = "Broadband access by country at 100Mbps:",
+       subtitle = "in 2013")
 ```
 
 </div>
 
 <div>
 
-in 2022
 
 ```{r country_broadband_map_2022_100mbps}
 bb_map_co_22_100 |>
@@ -417,7 +418,9 @@ bb_map_co_22_100 |>
     na.value = "gray80") + 
   scale_x_continuous(limits = c(-10, 35)) +
   scale_y_continuous(limits = c(35, 65)) +
-  theme_void()
+  theme_void() +
+  labs(title = "Broadband access by country at 100Mbps:",
+       subtitle = "in 2022")
 ```
 
 </div>
@@ -475,7 +478,7 @@ ggplot(rearranged_country, aes(x = fct_rev(fct_inorder(Country)), y = Value, fil
   geom_bar(stat = "identity", position = position_dodge(width = 0.8), width = 0.7, color = "white") +
   labs(title = "Comparison of Countries in 2022 and 2012",
        x = "Country",
-       y = "% Households with Internet Acces") +
+       y = "% Households with Internet Access") +
   scale_fill_manual(values = c("2012" = "#3182bd", "2022" = "#de2d26")) +
   theme_minimal() +
   coord_flip()
@@ -568,43 +571,12 @@ reg_shopping |>
   labs(
     title = "Internet Shopping in Regions Over Time",
     x = "Year",
-    y = "Percentage of Individuals who shopped using internet"
+    y = "% of Individuals who shopped using internet"
   )
 ```
 
-## Usage
 
-This specific plot focuses on the internet usage behavior of females in Albania, particularly in seeking health information, segmented by different age groups.
-
-```{r}
-co_usage[["int_female"]] |>
-  pivot_longer(cols = 4:8, names_to = "Ages") |>
-  filter(indic_is == "I_IHIF", REG_ID == "AL") |>
-  mutate(Year = factor(Year)) |>
-  ggplot(aes(x= Year, y=value, group=Ages, color=Ages))+
-  geom_line(linewidth=0.5)+
-  labs(
-    title = "Seeking Health information on the internet in Albania by Age group: Female ",
-    x = "Year",
-    y = "Percentage of Females")
-```
-
-This plot compares gender-wise usage for *doing an online course* by for individuals aged 16 to 24 over 2011-22. While we see a steady growth in the percentage of individuals doing an online course, the female population has surpassed male users. This can be interpreted as an increase in access among homemakers.
-
-```{r}
-co_usage[["int_wide"]] |>
-    select(indic_is, REG_ID, Year, F_Y16_24, M_Y16_24) |>
-    filter(indic_is == "I_IUOLC", REG_ID == "FR") |>
-ggplot(aes(x = Year)) +
-  geom_line(aes(y = F_Y16_24), color = "blue", linetype = "solid") +
-  geom_line(aes(y = M_Y16_24), color = "brown", linetype = "solid") +
-  ylab("Count") +
-  xlab("Year") +
-  ggtitle("Online course by Gender (Age 16-24) in France")
-```
-
-
-## Linear Model: Netherlands
+### Linear Model: Netherlands
 
 ```{r}
 employed <- co_usage[["int_emp"]] |>
@@ -616,16 +588,8 @@ employed <- co_usage[["int_emp"]] |>
 ```{r}
 shop_pattern <- co_house_access |>
   filter(REG_ID == "NL") |>
-  inner_join(dd, by = c("REG_ID", "Year"))
+  inner_join(employed, by = c("REG_ID", "Year"))
 ```
-
-```{r}
-ggplot(model, aes(x = I_IUSELL, y = I_IUIF)) +
-  geom_point() + 
-  geom_smooth(method = "loess")+
-  labs(x = "I_IUSELL", y = "I_IUIF")
-```
-
 
 ```{r}
 model <- lm(Value ~ I_IUIF + I_IUSELL, data =shop_pattern)
@@ -642,6 +606,103 @@ confint(model)
 - The interval for I_IUIF does not include zero, indicating statistical significance.
 - The interval for I_IUSELL includes zero, suggesting a lack of statistical significance.
 
+
+```{r}
+ggplot(model, aes(x = I_IUSELL, y = I_IUIF)) +
+  geom_point() + 
+  geom_smooth(method = "loess")+
+  labs(x = "I_IUSELL", y = "I_IUIF")
+```
+
+
+
+
+## Usage
+
+### Hungary
+There is a clear increase in internet usage across most types.
+
+```{r}
+aa <- co_usage[["internet"]] |>
+  filter(Year==c(2019, 2022)) |>
+  filter(REG_ID=="HU")
+ggplot(aa, aes(x= indic_is, y=Value, 
+               fill = as.factor(Year))) +
+  geom_col(position = "dodge") +
+  scale_fill_discrete(name = "Year") +
+  labs(y = "%", x = "Indicator type", 
+       title = "Internet usage by type in 2019 and 2022, Hungary")+
+  theme(axis.text.x = element_text(angle=90))
+```
+
+### Albania
+The plots below focus on the internet usage behavior in Albania, particularly in seeking health information, segmented by different age groups and gender.
+
+:::: {layout-ncol="2"}
+::: {#female}
+```{r}
+co_usage[["int_female"]] |>
+  pivot_longer(cols = 4:8, names_to = "Ages") |>
+  filter(indic_is == "I_IHIF", REG_ID == "AL") |>
+  mutate(Year = factor(Year)) |>
+  ggplot(aes(x= Year, y=value, group=Ages, color=Ages))+
+  geom_line(linewidth=0.5)+
+  ylim(c(10, 75)) +
+  labs(
+    title = "Seeking Health information on the internet in Albania by Age: Female ",
+    x = "Year",
+    y = "% of Females")
+```
+::: 
+
+::: {#male}
+```{r}
+co_usage[["int_male"]] |>
+  pivot_longer(cols = 4:8, names_to = "Ages") |>
+  filter(indic_is == "I_IHIF", REG_ID == "AL") |>
+  mutate(Year = factor(Year)) |>
+  ggplot(aes(x= Year, y=value, group=Ages, color=Ages))+
+  geom_line(linewidth=0.5)+
+  ylim(c(10, 75)) +
+  labs(
+    title = "Seeking Health information on the internet in Albania by Age: Male ",
+    x = "Year",
+    y = "% of Males")
+```
+:::
+::::
+
+
+### Cyprus
+This plot compares employment-wise usage for *participating in social networks (creating user profile, posting messages or other contributions to facebook, twitter, etc.)* over 2014-22. There is a visible increase in usage made by retired, self employed, and unemployed individuals, and a steady rate maintained by students.
+
+```{r}
+emp <- co_usage[["internet"]] |>
+  filter(ind_type==c("RETIR_OTHER", "SAL_SELF_FAM", 
+                     "STUD", "UNE")) |>
+  filter(REG_ID=="CY") |>
+  filter(indic_is=="I_IUSNET")
+emp |>
+  ggplot(aes(x = Year, y=Value, color = ind_type)) +
+  geom_line() +
+  labs(y = "%", title = "Participating in social networks in Cyprus by employment status", )
+```
+
+
+### Gender
+This plot compares gender-wise usage for *doing an online course* by for individuals aged 16 to 24 over 2011-22. While we see a steady growth in the percentage of individuals doing an online course, the female population has surpassed male users. This can be interpreted as an increase in access among homemakers.
+
+```{r}
+co_usage[["int_wide"]] |>
+    select(indic_is, REG_ID, Year, F_Y16_24, M_Y16_24) |>
+    filter(indic_is == "I_IUOLC", REG_ID == "FR") |>
+ggplot(aes(x = Year)) +
+  geom_line(aes(y = F_Y16_24), color = "blue", linetype = "solid") +
+  geom_line(aes(y = M_Y16_24), color = "brown", linetype = "solid") +
+  ylab("Count") +
+  xlab("Year") +
+  ggtitle("Online course by Gender (Age 16-24) in France")
+```
 
 # Conclusion
 
