@@ -22,6 +22,7 @@ library(knitr)
 theme_set(theme_bw())
 library(sf)
 library(eurostat)
+library(giscoR)
 ```
 
 # Research Question
@@ -566,19 +567,55 @@ co_usage[["int_female"]] |>
 This plot compares gender-wise usage for *doing an online course* by for individuals aged 16 to 24 over 2011-22. While we see a steady growth in the percentage of individuals doing an online course, the female population has surpassed male users. This can be interpreted as an increase in access among homemakers.
 
 ```{r}
-use_gender <- co_usage[["int_wide"]] |>
+co_usage[["int_wide"]] |>
     select(indic_is, REG_ID, Year, F_Y16_24, M_Y16_24) |>
-  filter(indic_is == "I_IUOLC", REG_ID == "FR")
-```
-
-```{r}
-ggplot(use_gender, aes(x = Year)) +
+    filter(indic_is == "I_IUOLC", REG_ID == "FR") |>
+ggplot(aes(x = Year)) +
   geom_line(aes(y = F_Y16_24), color = "blue", linetype = "solid") +
   geom_line(aes(y = M_Y16_24), color = "brown", linetype = "solid") +
   ylab("Count") +
   xlab("Year") +
   ggtitle("Online course by Gender (Age 16-24) in France")
 ```
+
+
+## Linear Model: Netherlands
+
+```{r}
+dd <- co_usage[["int_emp"]] |>
+  select(indic_is, REG_ID, Year, SAL_SELF_FAM) |>
+  filter(indic_is %in% c("I_IUIF", "I_IUSELL"), REG_ID == "NL") |>
+  pivot_wider(names_from = indic_is, values_from = SAL_SELF_FAM)
+```
+
+```{r}
+shop_pattern <- co_house_access |>
+  filter(REG_ID == "NL") |>
+  inner_join(dd, by = c("REG_ID", "Year"))
+```
+
+```{r}
+ggplot(model, aes(x = I_IUSELL, y = I_IUIF)) +
+  geom_point() +
+  labs(x = "I_IUSELL", y = "I_IUIF")
+```
+
+
+```{r}
+model <- lm(Value ~ I_IUIF + I_IUSELL, data =shop_pattern)
+summary(model)
+```
+- R-squared is 0.8186, 81.86% of the variability in Value explained by the model.
+- Significant positive relationship between I_IUIF and Value.
+- I_IUSELL is not significant.
+
+```{r}
+confint(model)
+```
+
+- The interval for I_IUIF does not include zero, indicating statistical significance.
+- The interval for I_IUSELL includes zero, suggesting a lack of statistical significance.
+
 
 # Conclusion
 
