@@ -16,9 +16,12 @@ here::i_am("G11-Internet-Usage.Rproj")
 library(vroom)
 library(dplyr)
 library(tidyr)
+library(tidyverse)
 library(ggplot2)
 library(knitr)
 theme_set(theme_bw())
+library(sf)
+library(eurostat)
 ```
 
 # Research Question
@@ -28,9 +31,6 @@ theme_set(theme_bw())
 The objective of this research is to conduct a thorough analysis of internet usage patterns across Europe, with a focus on individuals' behaviour related to seeking health information, online learning, music streaming, and the impact of age, gender, and employment status. The study also encompasses an examination of internet access at both regional and national levels, as well as broadband internet coverage access and speeds over time.
 
 The research will also delve into other variables related to internet usage. The data will be processed to facilitate a detailed examination of specific internet activities across individual categories and locations. This comprehensive approach aims to provide a nuanced understanding of internet usage patterns in the European context.
-
-
-
 
 ```{r}
 #| message: false
@@ -66,7 +66,7 @@ Regular users of the internet are persons who use the internet on average at lea
 
 [Regional Social and Environmental indicators: Internet broadband access:]{.underline}
 
-The data is available for many countries and we selected 29 European countries. 
+The data is available for many countries and we selected 29 European countries.
 
 ***Country-Level Data***
 
@@ -201,8 +201,6 @@ kable(broadband_speed_id <- co_broadband |>
   align = "lr")
 ```
 
-
-
 ```{r single_value_function}
 single_value <- function(my_var) {
   (my_var |> unique() |> length()) ==1
@@ -291,14 +289,194 @@ list(country_ids = country_ids,
 co_usage <- co_usage |> reformatting_full()
 ```
 
-
-
-
 # Data Analysis
 
+## Broadband access
 
+### Country level
+
+```{r}
+#| message: false
+map_co <- get_eurostat_geospatial(resolution = 10, 
+                        nuts_level = 0, 
+                        year = 2016)
+map_co <- map_co |>
+  select(id, NAME_LATN) |>
+  rename(REG_ID = id) 
+map_eu <- map_co |>
+  inner_join(country_ids, by = join_by(REG_ID)) |>
+  select(REG_ID, geometry)
+```
+
+```{r}
+bb_map_co_22 <- co_broadband |>
+  inner_join(map_eu, by = join_by(REG_ID)) |>
+  filter(Year=="2022") |>
+  select(-GBPS_GT1, -MBPS_GT2, -MBPS_GT100, -Year) |>
+  st_as_sf()
+
+
+bb_map_co_13 <- co_broadband |>
+  inner_join(map_eu, by = join_by(REG_ID)) |>
+  filter(Year=="2013") |>
+  select(-GBPS_GT1, -MBPS_GT2, -MBPS_GT100, -Year) |>
+  st_as_sf()
+```
+
+Broadband access by country at 30 megabits per second (Mbps):
+
+
+:::: {layout-ncol=2}
+::: {#2013}
+
+in 2013
+
+```{r country_broadband_map_2013}
+bb_map_co_13 |>
+  ggplot(aes(fill=MBPS_GT30)) +
+  geom_sf(size = 0.2, color = "#F3F3F3",
+          position = "dodge") +
+  scale_fill_viridis_c(
+    direction = -1,
+    name = "%",
+    na.value = "gray80") + 
+  scale_x_continuous(limits = c(-10, 35)) +
+  scale_y_continuous(limits = c(35, 65)) +
+  theme_void()
+```
+:::
+
+::: {#2022}
+
+in 2022
+
+```{r country_broadband_map_2022}
+bb_map_co_22 |>
+  ggplot(aes(fill=MBPS_GT30)) +
+  geom_sf(size = 0.2, color = "#F3F3F3") +
+  scale_fill_viridis_c(
+    direction = -1,
+    name = "%",
+    na.value = "gray80") + 
+  scale_x_continuous(limits = c(-10, 35)) +
+  scale_y_continuous(limits = c(35, 65)) +
+  theme_void()
+```
+:::
+::::
+
+
+```{r}
+bb_map_co_22_100 <- co_broadband |>
+  inner_join(map_eu, by = join_by(REG_ID)) |>
+  filter(Year=="2022") |>
+  select(-GBPS_GT1, -MBPS_GT2, -MBPS_GT30, -Year) |>
+  st_as_sf()
+
+
+bb_map_co_13_100 <- co_broadband |>
+  inner_join(map_eu, by = join_by(REG_ID)) |>
+  filter(Year=="2013") |>
+  select(-GBPS_GT1, -MBPS_GT2, -MBPS_GT30, -Year) |>
+  st_as_sf()
+```
+
+
+
+
+Broadband access by country at 100 megabits per second (Mbps):
+
+:::: {layout-ncol=2}
+::: {#2013}
+
+in 2013
+
+```{r country_broadband_map_2013_100mbps}
+bb_map_co_13_100 |>
+  ggplot(aes(fill=MBPS_GT100)) +
+  geom_sf(size = 0.2, color = "#F3F3F3",
+          position = "dodge") +
+  scale_fill_viridis_c(
+    direction = -1,
+    name = "%",
+    na.value = "gray80") + 
+  scale_x_continuous(limits = c(-10, 35)) +
+  scale_y_continuous(limits = c(35, 65)) +
+  theme_void()
+```
+:::
+
+::: {#2022}
+
+in 2022
+
+```{r country_broadband_map_2022_100mbps}
+bb_map_co_22_100 |>
+  ggplot(aes(fill=MBPS_GT100)) +
+  geom_sf(size = 0.2, color = "#F3F3F3") +
+  scale_fill_viridis_c(
+    direction = -1,
+    name = "%",
+    na.value = "gray80") + 
+  scale_x_continuous(limits = c(-10, 35)) +
+  scale_y_continuous(limits = c(35, 65)) +
+  theme_void()
+```
+:::
+::::
+
+
+
+
+
+
+
+
+### Regional level
+
+```{r}
+#| message: false
+map_reg <- get_eurostat_geospatial(resolution = 10, 
+                        nuts_level = 2, 
+                        year = 2016,
+                        crs = 3035)
+map_reg <- map_reg |>
+  select(id, NAME_LATN) |>
+  rename(REG_ID = id) 
+```
+
+```{r}
+bb_map_reg <- reg_broadband |>
+  filter(Year=="2013") |>
+  full_join(map_reg, by=join_by(REG_ID)) |>
+  st_as_sf()
+```
+
+```{r regional_broadband_map}
+bb_map_reg |>
+  ggplot(aes(fill = Value)) +
+  geom_sf(size = 0.2) +
+  scale_fill_distiller(
+    direction = 1, 
+    name = "%",
+    na.value = "gray80") + 
+  scale_x_continuous(limits = c(2500000, 7000000)) +
+  scale_y_continuous(limits = c(1600000, 5200000)) +
+  theme_void() +
+  labs(title="Broadband access by region in 2013")
+```
+
+
+
+## Internet access
+### Regional level
+
+:::: {layout="[ 40, 60 ]"}
+::: {#text}
 This plot visualises the trend of internet access in various regions over time, offering a dynamic perspective on the changing landscape of household internet access.
+:::
 
+::: {#time}
 ```{r}
 reg_int_access |>
   mutate(Year = factor(Year)) |>
@@ -310,7 +488,68 @@ reg_int_access |>
     y = "Percentage of Households with Internet Access"
   )
 ```
+:::
+::::
 
+
+:::: {layout-ncol=2}
+::: {#2014}
+```{r}
+int_acc_map_reg <- reg_int_access |>
+  filter(Year=="2014") |>
+  full_join(map_reg, by=join_by(REG_ID)) |>
+  st_as_sf()
+```
+
+```{r regional_internet_access_map_2014}
+int_acc_map_reg |>
+  ggplot(aes(fill = Value)) +
+  geom_sf(size = 0.2) +
+  scale_fill_distiller(
+    direction = 1, 
+    name = "%",
+    na.value = "gray80") + 
+  scale_x_continuous(limits = c(2500000, 7000000)) +
+  scale_y_continuous(limits = c(1600000, 5200000)) +
+  theme_void() +
+  labs(title="Internet access by region in 2014")
+```
+:::
+
+::: {#2022}
+```{r}
+int_acc_map_reg_22 <- reg_int_access |>
+  filter(Year=="2022") |>
+  full_join(map_reg, by=join_by(REG_ID)) |>
+  st_as_sf()
+```
+
+```{r regional_internet_access_map_2022}
+int_acc_map_reg_22 |>
+  ggplot(aes(fill = Value)) +
+  geom_sf(size = 0.2) +
+  scale_fill_distiller(
+    direction = 1, 
+    name = "%",
+    na.value = "gray80") + 
+  scale_x_continuous(limits = c(2500000, 7000000)) +
+  scale_y_continuous(limits = c(1600000, 5200000)) +
+  theme_void() +
+  labs(title="Internet access by region in 2022")
+```
+:::
+::::
+
+
+
+
+
+
+
+
+
+## Shopping
+### Regional level
 This plot illustrates the evolution of internet shopping behavior across regions, providing insights into the changing trends in online commerce.
 
 ```{r}
@@ -324,6 +563,9 @@ reg_shopping |>
     y = "Percentage of Individuals who shopped using internet"
   )
 ```
+
+
+## Usage
 
 This specific plot focuses on the internet usage behavior of females in Albania, particularly in seeking health information, segmented by different age groups.
 
@@ -340,30 +582,18 @@ co_usage[["int_female"]] |>
     y = "Percentage of Females")
 ```
 
-
-
-
-
-
-
-
-
-
-
 # Conclusion
-
-
-
-
-
 
 # Appendix
 
-## Links 
+## Links
+
 ### Git
+
 Git-hub Project: [G11-Internet-Usage](https://github.com/khushiijain/G11-Internet-Usage)
 
 ### Data Sources
+
 [Households that have internet access at home by NUTS 2 regions:]{.underline} [reg_int_access](https://ec.europa.eu/eurostat/databrowser/view/tgs00047/default/table?lang=en)
 
 [Individuals who ordered goods or services over the internet for private use in the last year by NUTS 2 regions:]{.underline} [reg_shopping](https://ec.europa.eu/eurostat/databrowser/view/tgs00052/default/map?lang=en)
@@ -381,8 +611,6 @@ The data is available for many countries and we selected 29 European countries. 
 [Broadband internet coverage by speed]{.underline}: [co_broadband](https://ec.europa.eu/eurostat/databrowser/view/isoc_cbs__custom_8519699/default/table?lang=en)
 
 [Level of internet access - households]{.underline}: [co_house_access](https://ec.europa.eu/eurostat/databrowser/view/tin00134__custom_8520113/default/table?lang=en)
-
-
 
 ## Cleaning
 
@@ -405,20 +633,3 @@ Country level broadband access speed is reformatted and pivoted to display the d
 #### Formatting EuroStat full internet usage dataset by country
 
 First, a function is created to split the dataset into comprehensible country, indicator, and individual type codes, as well as removal of unnecessary columns. Then, pivoting the data allows for further separation by Sex and Employment status. All these datasets are placed in a list.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
