@@ -325,10 +325,8 @@ bb_map_co_13 <- co_broadband |>
 
 Broadband access by country at 30 megabits per second (Mbps):
 
-
-:::: {layout-ncol=2}
+::: {layout-ncol="2"}
 ::: {#2013}
-
 in 2013
 
 ```{r country_broadband_map_2013}
@@ -347,7 +345,6 @@ bb_map_co_13 |>
 :::
 
 ::: {#2022}
-
 in 2022
 
 ```{r country_broadband_map_2022}
@@ -363,8 +360,7 @@ bb_map_co_22 |>
   theme_void()
 ```
 :::
-::::
-
+:::
 
 ```{r}
 bb_map_co_22_100 <- co_broadband |>
@@ -381,13 +377,10 @@ bb_map_co_13_100 <- co_broadband |>
   st_as_sf()
 ```
 
-
-
-
 Broadband access by country at 100 megabits per second (Mbps):
 
-:::: {layout-ncol=2}
-::: {#2013}
+::: {layout-ncol="2"}
+<div>
 
 in 2013
 
@@ -404,9 +397,10 @@ bb_map_co_13_100 |>
   scale_y_continuous(limits = c(35, 65)) +
   theme_void()
 ```
-:::
 
-::: {#2022}
+</div>
+
+<div>
 
 in 2022
 
@@ -422,15 +416,9 @@ bb_map_co_22_100 |>
   scale_y_continuous(limits = c(35, 65)) +
   theme_void()
 ```
+
+</div>
 :::
-::::
-
-
-
-
-
-
-
 
 ### Regional level
 
@@ -466,12 +454,11 @@ bb_map_reg |>
   labs(title="Broadband access by region in 2013")
 ```
 
-
-
 ## Internet access
+
 ### Regional level
 
-:::: {layout="[ 40, 60 ]"}
+::: {layout="[ 40, 60 ]"}
 ::: {#text}
 This plot visualises the trend of internet access in various regions over time, offering a dynamic perspective on the changing landscape of household internet access.
 :::
@@ -489,10 +476,9 @@ reg_int_access |>
   )
 ```
 :::
-::::
+:::
 
-
-:::: {layout-ncol=2}
+::: {layout-ncol="2"}
 ::: {#2014}
 ```{r}
 int_acc_map_reg <- reg_int_access |>
@@ -516,7 +502,8 @@ int_acc_map_reg |>
 ```
 :::
 
-::: {#2022}
+<div>
+
 ```{r}
 int_acc_map_reg_22 <- reg_int_access |>
   filter(Year=="2022") |>
@@ -537,19 +524,14 @@ int_acc_map_reg_22 |>
   theme_void() +
   labs(title="Internet access by region in 2022")
 ```
+
+</div>
 :::
-::::
-
-
-
-
-
-
-
-
 
 ## Shopping
+
 ### Regional level
+
 This plot illustrates the evolution of internet shopping behavior across regions, providing insights into the changing trends in online commerce.
 
 ```{r}
@@ -563,7 +545,6 @@ reg_shopping |>
     y = "Percentage of Individuals who shopped using internet"
   )
 ```
-
 
 ## Usage
 
@@ -580,6 +561,23 @@ co_usage[["int_female"]] |>
     title = "Seeking Health information on the internet in Albania by Age group: Female ",
     x = "Year",
     y = "Percentage of Females")
+```
+
+This plot compares gender-wise usage for *doing an online course* by for individuals aged 16 to 24 over 2011-22. While we see a steady growth in the percentage of individuals doing an online course, the female population has surpassed male users. This can be interpreted as an increase in access among homemakers.
+
+```{r}
+use_gender <- co_usage[["int_wide"]] |>
+    select(indic_is, REG_ID, Year, F_Y16_24, M_Y16_24) |>
+  filter(indic_is == "I_IUOLC", REG_ID == "FR")
+```
+
+```{r}
+ggplot(use_gender, aes(x = Year)) +
+  geom_line(aes(y = F_Y16_24), color = "blue", linetype = "solid") +
+  geom_line(aes(y = M_Y16_24), color = "brown", linetype = "solid") +
+  ylab("Count") +
+  xlab("Year") +
+  ggtitle("Online course by Gender (Age 16-24) in France")
 ```
 
 # Conclusion
