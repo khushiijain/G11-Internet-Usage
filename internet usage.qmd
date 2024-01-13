@@ -1,14 +1,18 @@
 ---
-title: "Internet Usage"
-author: "Arina and Khushi"
+title: "Comprehensive Analysis of Internet Usage Patterns Across European Regions and Countries"
+date: 2024-01-14
+author: "Arina and JAIN Khushi"
 format: 
   html: 
     echo: false 
     toc: true
     toc_depth: 2
+    title-block-banner: true
   pdf: 
     echo: false
-  wordcount-html: default
+    wordcount-html: default
+    number-sections: true
+    colorlinks: true
 ---
 
 ```{r}
