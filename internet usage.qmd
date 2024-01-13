@@ -736,6 +736,12 @@ ggplot(aes(x = Year)) +
 
 # Conclusion
 
+This report undertook a thorough analysis into the internet usage patterns across European Union member states, shedding light on various dimensions such as health information seeking and online learning. 
+
+The findings of this study underscore significant improvements in internet access and broadband coverage over the past twelve years among European Union member states. While some nations met the initial 2010 targets for basic broadband accessibility, others demonstrated substantial progress, marking a notable shift towards fast and ultra-fast broadband. The surge in households exceeding 30 Mbps and 100 Mbps illustrates the transformative trajectory of digital connectivity. Regional analysis highlights dynamic shifts in internet access patterns, particularly evident in regions like North West Belgium and specific areas in Romania, emphasizing the importance of considering regional nuances in comprehending the evolving digital landscape. The positive trends at both country and regional levels reflect collective efforts and advancements in digital infrastructure and literacy initiatives. 
+
+Luxembourg, the Netherlands, and Denmark emerge as front-runners. 
+
 # Appendix
 
 ## Links
