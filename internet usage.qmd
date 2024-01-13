@@ -1,8 +1,9 @@
 ---
 title: "Comprehensive Analysis of Internet Usage Patterns Across European Regions and Countries"
 date: 2024-01-14
-author: "Arina and JAIN Khushi"
+author: "AGARONYAN Arina and JAIN Khushi"
 format: 
+  wordcount-html: default
   html: 
     echo: false 
     toc: true
@@ -10,7 +11,7 @@ format:
     title-block-banner: true
   pdf: 
     echo: false
-    wordcount-html: default
+    toc: true
     number-sections: true
     colorlinks: true
 ---
@@ -53,7 +54,7 @@ reg_shopping <- vroom(here("data", "EuroStat-regional-goods-services.csv"))
 
 # Data Sets Description
 
-### Data Sources
+## Data Sources
 
 ***Region-Level Data***
 
@@ -196,6 +197,7 @@ kable(country_ids <- co_broadband |>
 kable(
   indicator_id_co_usage <- co_usage |>
   distinct(indic_is, `Information society indicator`) |>
+  separate_wider_delim(`Information society indicator`, ":", names = c(NA, "Information society indicator")) |>
   group_by(indic_is),
   caption = "Internet usage variables: indicator codes and names",
   align = "lr")
@@ -272,7 +274,8 @@ country_ids <- int_df |>
   rename(REG_ID = geo, Region = `Geopolitical entity (reporting)`)
 
 indicators <- int_df |>
-  distinct(indic_is, `Information society indicator`) 
+  distinct(indic_is, `Information society indicator`) |>
+  separate_wider_delim(`Information society indicator`, ":", names = c(NA, "Information society indicator"))
 
 individuals <- int_df |>
   distinct(ind_type, `Individual type`) 
@@ -505,39 +508,36 @@ rearranged_country <- co_house_access %>%
 ```
 
 ```{r Comparison Graph}
-ggplot(rearranged_country, aes(x = fct_rev(fct_inorder(Country)), y = Value, fill = as.factor(Year))) +
-  geom_bar(stat = "identity", position = position_dodge(width = 0.8), width = 0.7, color = "white") +
+ggplot(rearranged_country, aes(x = fct_rev(fct_inorder(Country)), 
+                               y = Value, fill = as.factor(Year))) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8), 
+           width = 0.7, color = "white") +
   labs(title = "Comparison of Countries in 2022 and 2012",
        x = "Country",
        y = "% Households with Internet Access") +
-  scale_fill_manual(values = c("2012" = "#3182bd", "2022" = "#de2d26")) +
+  scale_fill_manual(values = c("2012" = "#3182bd", "2022" = "#de2d26"), 
+                    name = "Year") +
   theme_minimal() +
   coord_flip()
 ```
 
 ### Regional level
 
-::: {layout="[ 40, 60 ]"}
-::: {#text}
-This plot visualises the trend of internet access in various regions over time, offering a dynamic perspective on the changing landscape of household internet access.
+This plot visualises the trend of internet access in various regions over time, offering a dynamic perspective on the changing landscape of household internet access. There is a general overall increase across all European regions over time.
 
-The maps compare internet access in 2014 and 2022 in the NUTS Regions. 50% improvement in the North West Belgium. In Romania, regions such as South-Muntenia, South-West Oltenia, North-East and Center, had more than 35% improvement.
-:::
-
-::: {#time}
 ```{r}
 reg_int_access |>
   mutate(Year = factor(Year)) |>
   ggplot(aes(x= Year, y=Value, group = REG_ID))+
   geom_line(linewidth=0.05) +
   labs(
-    title = "Internet Access in Regions Over Time",
+    title = "Internet Access in Regions over Time",
     x = "Year",
-    y = "Percentage of Households with Internet Access"
+    y = "% of Households with Internet Access"
   )
 ```
-:::
-:::
+
+The maps compare internet access in 2014 and 2022 in the NUTS Regions. 50% improvement in the North West Belgium. In Romania, regions such as South-Muntenia, South-West Oltenia, North-East and Center, had a more than 35% improvement.
 
 ::: {layout-ncol="2"}
 ::: {#2014}
@@ -588,6 +588,25 @@ int_acc_map_reg_22 |>
 
 </div>
 :::
+
+### Sweden
+
+As one of the top 5 countries in terms of internet access, Swedish regional data shows an overall stability with all regions remaining at above 80% of households having access; however, year on year changes are seemingly random and volatile. For example, Upper Norrland (SE32) went from a 100% access in 2020 to 82% in 2022. This may be due to the significant internal migration[^2], leaving households with no need for internet access; or conversely, a positive net migration for education or work, such as in metropolitan regions like Stockholm (SE11) or West Sweden (SE23), result in a less volatile pattern than regions with a negative net migration.
+
+[^2]: <https://www.scb.se/en/finding-statistics/statistics-by-subject-area/population/population-projections/demographic-analysis-demog/pong/statistical-news/demographic-analysis-internal-migration-in-sweden-moving-between-counties-20022021/>
+
+```{r}
+reg_int_access |>
+  mutate(Year = factor(Year)) |>
+  filter(str_detect(REG_ID, "SE")) |>
+  ggplot(aes(x= Year, y=Value, group = REG_ID, color = REG_ID))+
+  geom_line() +
+  labs(
+    title = "Internet Access in Swedish Regions over Time",
+    x = "Year",
+    y = "% of Households with Internet Access"
+  )
+```
 
 ## Shopping
 
@@ -736,11 +755,11 @@ ggplot(aes(x = Year)) +
 
 # Conclusion
 
-This report undertook a thorough analysis into the internet usage patterns across European Union member states, shedding light on various dimensions such as health information seeking and online learning. 
+This report undertook a thorough analysis into the internet usage patterns across European Union member states, shedding light on various dimensions such as health information seeking and online learning.
 
-The findings of this study underscore significant improvements in internet access and broadband coverage over the past twelve years among European Union member states. While some nations met the initial 2010 targets for basic broadband accessibility, others demonstrated substantial progress, marking a notable shift towards fast and ultra-fast broadband. The surge in households exceeding 30 Mbps and 100 Mbps illustrates the transformative trajectory of digital connectivity. Regional analysis highlights dynamic shifts in internet access patterns, particularly evident in regions like North West Belgium and specific areas in Romania, emphasizing the importance of considering regional nuances in comprehending the evolving digital landscape. The positive trends at both country and regional levels reflect collective efforts and advancements in digital infrastructure and literacy initiatives. 
+The findings of this study underscore significant improvements in internet access and broadband coverage over the past twelve years among European Union member states. While some nations met the initial 2010 targets for basic broadband accessibility, others demonstrated substantial progress, marking a notable shift towards fast and ultra-fast broadband. The surge in households exceeding 30 Mbps and 100 Mbps illustrates the transformative trajectory of digital connectivity. Regional analysis highlights dynamic shifts in internet access patterns, particularly evident in regions like North West Belgium and specific areas in Romania, emphasizing the importance of considering regional nuances in comprehending the evolving digital landscape. The positive trends at both country and regional levels reflect collective efforts and advancements in digital infrastructure and literacy initiatives.
 
-Luxembourg, the Netherlands, and Denmark emerge as front-runners. 
+Luxembourg, the Netherlands, and Denmark emerge as front-runners.
 
 # Appendix
 
