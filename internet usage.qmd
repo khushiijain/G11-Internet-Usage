@@ -471,7 +471,7 @@ map_reg <- map_reg |>
 
 ```{r}
 bb_map_reg <- reg_broadband |>
-  filter(Year=="2013") |>
+  filter(Year=="2015") |>
   full_join(map_reg, by=join_by(REG_ID)) |>
   st_as_sf()
 ```
@@ -488,6 +488,16 @@ bb_map_reg |>
   scale_y_continuous(limits = c(1600000, 5200000)) +
   theme_void() +
   labs(title="Broadband access by region in 2013")
+```
+
+### Austria
+
+```{r}
+bb_reg <- reg_broadband |>
+  filter(str_detect(REG_ID, "AT"))
+
+ggplot(bb_reg, aes(x = Year, y = Value, color = REG_ID)) +
+  geom_line()
 ```
 
 ## Internet access
@@ -625,6 +635,50 @@ reg_shopping |>
     y = "% of Individuals who shopped using internet"
   )
 ```
+```{r}
+shop_reg_14 <- reg_shopping |>
+  filter(Year=="2014") |>
+  full_join(map_reg, by=join_by(REG_ID)) |>
+  st_as_sf()
+shop_reg_21 <- reg_shopping |>
+  filter(Year=="2021") |>
+  full_join(map_reg, by=join_by(REG_ID)) |>
+  st_as_sf()
+```
+
+::: {layout-ncol="2"}
+::: {#2014}
+```{r regional_shop_map_14}
+shop_reg_14 |>
+  ggplot(aes(fill = Value)) +
+  geom_sf(size = 0.2) +
+  scale_fill_distiller(
+    direction = 1, 
+    name = "%",
+    na.value = "gray80") + 
+  scale_x_continuous(limits = c(2500000, 7000000)) +
+  scale_y_continuous(limits = c(1600000, 5200000)) +
+  theme_void() +
+  labs(title="Internet shopping by region in 2014")
+```
+:::
+
+::: {2021}
+```{r regional_shopping_map_21}
+shop_reg_21 |>
+  ggplot(aes(fill = Value)) +
+  geom_sf(size = 0.2) +
+  scale_fill_distiller(
+    direction = 1, 
+    name = "%",
+    na.value = "gray80") + 
+  scale_x_continuous(limits = c(2500000, 7000000)) +
+  scale_y_continuous(limits = c(1600000, 5200000)) +
+  theme_void() +
+  labs(title="Internet shopping by region in 2021")
+```
+:::
+:::
 
 ### Linear Model: Netherlands
 
@@ -658,6 +712,7 @@ confint(model)
 -   The interval for I_IUSELL includes zero, suggesting a lack of statistical significance.
 
 ```{r}
+#| message: false
 ggplot(model, aes(x = I_IUSELL, y = I_IUIF)) +
   geom_point() + 
   geom_smooth(method = "loess")+
@@ -665,6 +720,67 @@ ggplot(model, aes(x = I_IUSELL, y = I_IUIF)) +
 ```
 
 ## Usage
+
+### Employment status
+
+::: {layout-ncol="2"}
+::: {#text}
+On average, across all European countries, students dominate the proportion of internet usage across almost all areas with, for example, 100% of students using the internet for instant messaging (I_IUCHAT1) and watching internet streamed TV or videos (I_IUSTVV).
+Retired individuals are consistently the lowest proportion, only surprassing the unemployed through using the internet for online banking.
+:::
+
+::: {#graph}
+```{r}
+zz <- co_usage[["internet"]] |>
+  filter(ind_type==c("RETIR_OTHER", "SAL_SELF_FAM", 
+                     "STUD", "UNE")) |>
+  filter(Year=="2022")
+```
+
+```{r}
+ggplot(zz, aes(x = indic_is, y=Value, 
+               fill = ind_type)) +
+  geom_col(position = "dodge") +
+  scale_fill_discrete(name = "Employment status") +
+  labs(y = "%", x = "Indicator type", 
+       title = "Internet usage by Employment in 2022")+
+  theme(axis.text.x = element_text(angle=90))
+```
+:::
+:::
+
+```{r}
+ggplot(zz, aes(x = indic_is, y=Value, 
+               fill = ind_type)) +
+  geom_col(position = "dodge") +
+  scale_fill_discrete(name = "Employment status") +
+  labs(y = "%", x = "Indicator type", 
+       title = "Internet usage by Employment in 2022")+
+  theme(axis.text.x = element_text(angle=90)) +
+  facet_wrap(~ind_type)
+```
+
+
+### Social Network: Cyprus
+::: {layout-ncol="2"}
+::: {#text}
+This plot compares employment-wise usage for *participating in social networks (creating user profile, posting messages or other contributions to facebook, twitter, etc.)* over 2014-22. There is a visible increase in usage made by retired, self employed, and unemployed individuals, and a steady rate maintained by students.
+:::
+
+::: {#graph}
+```{r}
+emp <- co_usage[["internet"]] |>
+  filter(ind_type==c("RETIR_OTHER", "SAL_SELF_FAM", 
+                     "STUD", "UNE")) |>
+  filter(REG_ID=="CY") |>
+  filter(indic_is=="I_IUSNET")
+emp |>
+  ggplot(aes(x = Year, y=Value, color = ind_type)) +
+  geom_line() +
+  labs(y = "%", title = "Participating in social networks in Cyprus by employment status", )
+```
+:::
+:::
 
 ### Hungary
 
@@ -683,9 +799,9 @@ ggplot(aa, aes(x= indic_is, y=Value,
   theme(axis.text.x = element_text(angle=90))
 ```
 
-### Albania
+### Seeking health information: Albania
 
-The plots below focus on the internet usage behavior in Albania, particularly in seeking health information, segmented by different age groups and gender.
+The plots below focus on the internet usage behavior in Albania, particularly in seeking health information, segmented by different age groups and gender. The increase in seeking health information on the internet around 2020 can be attributed to the Covid-19 pandemic, and the decline in the trend in 2022 implies the end of the perceived threat of the virus.
 
 ::: {layout-ncol="2"}
 ::: {#female}
@@ -721,25 +837,10 @@ co_usage[["int_male"]] |>
 :::
 :::
 
-### Cyprus
-
-This plot compares employment-wise usage for *participating in social networks (creating user profile, posting messages or other contributions to facebook, twitter, etc.)* over 2014-22. There is a visible increase in usage made by retired, self employed, and unemployed individuals, and a steady rate maintained by students.
-
-```{r}
-emp <- co_usage[["internet"]] |>
-  filter(ind_type==c("RETIR_OTHER", "SAL_SELF_FAM", 
-                     "STUD", "UNE")) |>
-  filter(REG_ID=="CY") |>
-  filter(indic_is=="I_IUSNET")
-emp |>
-  ggplot(aes(x = Year, y=Value, color = ind_type)) +
-  geom_line() +
-  labs(y = "%", title = "Participating in social networks in Cyprus by employment status", )
-```
 
 ### Gender
 
-This plot compares gender-wise usage for *doing an online course* by for individuals aged 16 to 24 over 2011-22. While we see a steady growth in the percentage of individuals doing an online course, the female population has surpassed male users. This can be interpreted as an increase in access among homemakers.
+This plot compares gender-wise usage for *doing an online course* by for individuals aged 16 to 24 over 2011-22. While we see a steady growth in the percentage of individuals doing an online course, the female (blue) population has surpassed male (red) users. This can be interpreted as an increase in access among homemakers.
 
 ```{r}
 co_usage[["int_wide"]] |>
