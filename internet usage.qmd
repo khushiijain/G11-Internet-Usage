@@ -34,13 +34,23 @@ library(eurostat)
 library(giscoR)
 ```
 
+{{< pagebreak >}}
+
 # Research Question
 
 **Exploring Internet Usage Patterns: A Comprehensive Analysis across European Regions and Countries**
 
-The objective of this research is to conduct a thorough analysis of internet usage patterns across Europe, with a focus on individuals' behaviour related to seeking health information, online learning, music streaming, and the impact of age, gender, and employment status. The study also encompasses an examination of internet access at both regional and national levels, as well as broadband internet coverage access and speeds over time.
+This research aims to conduct a comprehensive analysis of internet usage patterns in Europe. Focusing on individual behaviors related to health information seeking, online learning, and music streaming, the study explores the influence of age, gender, and employment status. Additionally, it examines internet access at regional and national levels, along with broadband coverage and speeds over time.
 
-The research will also delve into other variables related to internet usage. The data will be processed to facilitate a detailed examination of specific internet activities across individual categories and locations. This comprehensive approach aims to provide a nuanced understanding of internet usage patterns in the European context.
+1.  **Behavioral Patterns:** Investigate internet usage behaviors concerning health information, online learning, gaming, e-commerce, and banking services.
+
+2.  **Demographic Impact:** Analyze the impact of age, gender, and employment status on internet usage.
+
+3.  **Geographic Analysis:** Examine internet access trends regionally and nationally.
+
+4.  **Broadband Coverage:** Assess broadband internet coverage and speeds over the study period.
+
+5.  **Variable Exploration:** Delve into various variables related to internet usage for a nuanced understanding.
 
 ```{r}
 #| message: false
@@ -321,7 +331,7 @@ co_usage <- co_usage |> reformatting_full()
 
 Over the past years, there has been a notable positive trend in global connectivity, with a substantial improvement in internet accessibility across the majority of countries. We can see that of most of these countries that over 85% of households gained access to internet. This progress underscores the widespread efforts and advancements in infrastructure, technology, and digital literacy initiatives on a global scale.
 
-In Luxembourg, Netherlands and Denmark, 98% of households had internet access in 2022. The increament in Greece was of 50 percentage points, from 53.58% in 2012 to 85.49 % in 2022.
+In Luxembourg, Netherlands and Denmark, 98% of households had internet access in 2022. The increment in Greece was of 50 percentage points, from 53.58% in 2012 to 85.49 % in 2022.
 
 ```{r Top 5 and Below 5 Countries}
 rearranged_country <- co_house_access %>%
@@ -373,7 +383,7 @@ reg_int_access |>
   )
 ```
 
-The maps compare internet access in 2014 and 2022 in the NUTS 2 Regions. 50% improvement in the North West Belgium. In Romania, regions such as South-Muntenia, South-West Oltenia, North-East and Center, had a more than 35% improvement.
+The maps compare internet access in 2014 and 2022 in the NUTS 2 Regions. 50% increment in the North West Belgium. In Romania, regions such as South-Muntenia, South-West Oltenia, North-East and Center, had a more than 35% improvement.
 
 ::: {layout-ncol="2"}
 ::: {#2014}
@@ -445,7 +455,6 @@ reg_int_access |>
     y = "% of Households with Internet Access"
   )
 ```
-
 
 ## Broadband access
 
@@ -606,7 +615,13 @@ ggplot(bb_reg, aes(x = Year, y = Value, color = REG_ID)) +
 
 ## Usage
 
-### Shopping: Netherlands
+### Online Shopping Patterns: Netherlands Linear Model Analysis
+
+According to a Eurostat survey in 2021, Netherlands had the highest shares of internet users who bought or ordered goods or services over the internet in the 12 months prior to the survey were recorded in the Netherlands (94%)3. The primary focus is on the relationship between the dependent variable "Value" and the independent variables "*I_IUIF*- finding information about goods and services" and "*I_IUSELL* - selling goods or services." We choose the individuals categorized as *SAL_SELF_FAM-* employees, self-employed, family workers.
+
+The linear model can be expressed as follows:
+
+`Value = 21.84471 + 0.80559 × I_IUIF+ 0.02079 × I_IUSELL`
 
 ```{r}
 employed <- co_usage[["int_emp"]] |>
@@ -626,29 +641,45 @@ model <- lm(Value ~ I_IUIF + I_IUSELL, data =shop_pattern)
 summary(model)
 ```
 
--   R-squared is 0.8186, 81.86% of the variability in Value explained by the model.
--   Significant positive relationship between I_IUIF and Value.
--   I_IUSELL is not significant.
+The model's performance is summarized as follows:
+
+-   Residual Standard Error: 0.8715
+
+-   Multiple R-squared: 0.8186
+
+-   Adjusted R-squared: 0.7782
+
+-   F-statistic: 20.3 on 2 and 9 degrees of freedom
+
+-   p-value: 0.0004617
 
 ```{r}
 confint(model)
 ```
 
--   The interval for I_IUIF does not include zero, indicating statistical significance.
--   The interval for I_IUSELL includes zero, suggesting a lack of statistical significance.
+-   For the intercept, the 95% confidence interval ranges from -9.7664 to 53.4558.
+
+-   The interval for "I_IUIF" (0.4431 to 1.1681) does not include zero, signifying its statistical significance.
+
+-   On the other hand, the interval for "I_IUSELL" (-0.0594 to 0.1010) includes zero, suggesting a lack of statistical significance.
+
+-   The linear model suggests that "I_IUIF" significantly influences the dependent variable "Value," while "I_IUSELL" does not exhibit a statistically significant effect. These findings provide insights into the online shopping patterns in the Netherlands, emphasizing the importance of certain factors in determining the value of online transactions.
+
+The graph represents the correlation between the proportion of individuals engaged in online selling and those utilizing the internet to seek information on goods and services. Despite a consistent upward trend in the percentage of individuals expressing interest in information retrieval, the same pattern is not observed in the domain of commercial activities.
+
+This discrepancy sheds light on a crucial aspect of e-sellers' behavior. Notably, there has been a noticeable improvement in the percentage over the past three years, with the lockdown period emerging as a significant contributing factor to this shift.
 
 ```{r}
 #| message: false
-ggplot(model, aes(x = I_IUSELL, y = I_IUIF)) +
+ggplot(model, aes(x = I_IUIF, y = I_IUSELL)) +
   geom_point() + 
   geom_smooth(method = "loess")+
-  labs(x = "I_IUSELL", y = "I_IUIF")
+  labs(x = "% Individuals seeking information on goods", y = "% Individuals selling goods & services")
 ```
 
 ### Shopping: Regional level
 
 These maps illustrate the evolution of internet shopping behavior across regions, providing insights into the changing trends in online commerce.
-
 
 ```{r}
 shop_reg_14 <- reg_shopping |>
@@ -662,7 +693,8 @@ shop_reg_21 <- reg_shopping |>
 ```
 
 ::: {layout-ncol="2"}
-::: {#2014}
+<div>
+
 ```{r regional_shop_map_14}
 shop_reg_14 |>
   ggplot(aes(fill = Value)) +
@@ -677,7 +709,8 @@ shop_reg_14 |>
   theme_void() +
   labs(title="Internet shopping by region in 2014")
 ```
-:::
+
+</div>
 
 ::: {2021}
 ```{r regional_shopping_map_21}
@@ -699,7 +732,7 @@ shop_reg_21 |>
 
 ### Hungary
 
-There is a clear increase in internet usage across most types.
+There is a clear increase in internet usage across most types between 2019-2022. There has been more than 100% increase in the percentage of individuals accessing an online learning material (*I_IUOLM*).
 
 ```{r}
 aa <- co_usage[["internet"]] |>
@@ -714,11 +747,9 @@ ggplot(aa, aes(x= indic_is, y=Value,
   theme(axis.text.x = element_text(angle=90))
 ```
 
-
 ### Employment status
 
-On average, across all European countries, students dominate the proportion of internet usage across almost all areas with, for example, 100% of students using the internet for instant messaging (I_IUCHAT1) and watching internet streamed TV or videos (I_IUSTVV).
-Retired individuals are consistently the lowest proportion, only surprassing the unemployed through using the internet for online banking.
+On average, across all European countries, students dominate the proportion of internet usage across almost all areas with, for example, 100% of students using the internet for instant messaging (I_IUCHAT1) and watching internet streamed TV or videos (I_IUSTVV). Retired individuals are consistently the lowest proportion, only surprassing the unemployed through using the internet for online banking.
 
 ```{r}
 zz <- co_usage[["internet"]] |>
@@ -748,7 +779,6 @@ ggplot(zz, aes(x = indic_is, y=Value,
   facet_wrap(~ind_type)
 ```
 
-
 ### Social Network: Cyprus
 
 This plot compares employment-wise usage for *participating in social networks (creating user profile, posting messages or other contributions to facebook, twitter, etc.)* over 2014-22. There is a visible increase in usage made by retired, self employed, and unemployed individuals, and a steady rate maintained by students.
@@ -766,6 +796,9 @@ emp |>
 ```
 
 ### Playing or downloading games: Italy
+
+There plots represent the problem of less female representation in the gaming industry in Italy.
+
 ::: {layout-ncol="2"}
 ::: {#fem}
 ```{r}
@@ -838,7 +871,6 @@ co_usage[["int_male"]] |>
 :::
 :::
 
-
 ### Online course: France
 
 This plot compares gender-wise usage for *doing an online course* by for individuals aged 16 to 24 over 2011-22. While we see a steady growth in the percentage of individuals doing an online course, the female (blue) population has surpassed male (red) users. This can be interpreted as an increase in access among homemakers.
@@ -857,11 +889,11 @@ ggplot(aes(x = Year)) +
 
 # Conclusion
 
-This report undertook a thorough analysis into the internet usage patterns across European Union member states, shedding light on various dimensions such as health information seeking and online learning.
+The extensive analysis of internet usage patterns across European Union member states revealed compelling insights into the dynamics of digital engagement. We dwell deeper into different usages of internet: e-commerce, engagements in social networks, seeking health information, recreational activities and online learning resources.
 
 The findings of this study underscore significant improvements in internet access and broadband coverage over the past twelve years among European Union member states. While some nations met the initial 2010 targets for basic broadband accessibility, others demonstrated substantial progress, marking a notable shift towards fast and ultra-fast broadband. The surge in households exceeding 30 Mbps and 100 Mbps illustrates the transformative trajectory of digital connectivity. Regional analysis highlights dynamic shifts in internet access patterns, particularly evident in regions like North West Belgium and specific areas in Romania, emphasizing the importance of considering regional nuances in comprehending the evolving digital landscape. The positive trends at both country and regional levels reflect collective efforts and advancements in digital infrastructure and literacy initiatives.
 
-Luxembourg, the Netherlands, and Denmark emerge as front-runners.
+Luxembourg, the Netherlands, and Denmark emerge as front-runners. The analysis within the countries and regions give results on different demographical aspects. Overall, the positive trends observed at both country and regional levels reflect the concerted efforts and advancements in digital infrastructure and literacy initiatives across European Union member states.
 
 # Appendix
 
