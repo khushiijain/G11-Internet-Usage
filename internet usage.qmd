@@ -3,7 +3,8 @@ title: "Comprehensive Analysis of Internet Usage Patterns Across European Region
 date: 2024-01-14
 author: "AGARONYAN Arina and JAIN Khushi"
 format: 
-  wordcount-html: default
+  wordcount-html: 
+    echo: false 
   html: 
     echo: false 
     toc: true
@@ -12,6 +13,7 @@ format:
   pdf: 
     echo: false
     toc: true
+    toc_depth: 2
     number-sections: true
     colorlinks: true
 ---
@@ -74,7 +76,7 @@ Regular users of the internet are persons who use the internet on average at lea
 
 [Regional Social and Environmental indicators: Internet broadband access:]{.underline}
 
-The data is available for many countries and we selected 29 European countries.
+Share of households with internet broadband access (in % of total households). The data is available for many countries; we selected 29 European countries and their regions. The OECD has classified two levels of geographic units within each country: large regions (territorial level 2 or TL2), and small regions (territorial level 3 or TL3).
 
 ***Country-Level Data***
 
@@ -110,9 +112,9 @@ raw_data_table <- function(.x, name) {
 
 datasets <- list(
   reg_broadband = "Broadband Access - Region",
-  reg_int_access = "Internet Access - NUTS Region",
-  reg_int_use = "Regular Internet Use - NUTS Region",
-  reg_shopping = "Internet use for buying Goods and Services - NUTS Region",
+  reg_int_access = "Internet Access - NUTS 2 Region",
+  reg_int_use = "Regular Internet Use - NUTS 2 Region",
+  reg_shopping = "Internet use for buying Goods and Services - NUTS 2 Region",
   co_usage = "Internet Usage - Country",
   co_broadband = "Broadband Access - Country",
   co_house_access = "Internet Access - Country"
@@ -149,12 +151,12 @@ region_ids <- int_df |>
 
 We possess region-level data from OECD and Eurostat, where the Region IDs are specified using country initials and a unique number allotted to each region.
 
-[NUTS 2 Regions EuroStat]{.underline}
+[NUTS 2 Regions Eurostat]{.underline}
 
 ```{r}
 kable(head(reg_int_use_reg_id <- reg_int_use |> 
              reformatting_region()), 
-      caption = "First 6 rows of EuroStat Region IDs and Names")
+      caption = "First 6 rows of Eurostat Region IDs and Names")
 ```
 
 [Territory level and Region ID OECD]{.underline}
@@ -169,15 +171,15 @@ kable(head(reg_id_reg_broadband <- reg_broadband |>
 
 Where Territorial Level 1 represents a country, and 2 represents states and regions.
 
-This following table establishes the connection between OECD regions and NUTS regions.
+This following table establishes the connection between OECD regions and NUTS 2 regions.
 
 ```{r}
 kable(head(reg_ids <- reg_id_reg_broadband |>
              select(-TL) |>
              inner_join(reg_int_use_reg_id, 
                         by = join_by(REG_ID), 
-                        suffix = c("_OECD", "_EuroStat"))), 
-           caption = "First 6 rows of OECD and EuroStat Region IDs and Names")
+                        suffix = c("_OECD", "_Eurostat"))), 
+           caption = "First 6 rows of OECD and Eurostat Region IDs and Names")
 ```
 
 **Country-Level Data Description**
@@ -189,7 +191,7 @@ kable(country_ids <- co_broadband |>
   distinct(geo, `Geopolitical entity (reporting)`) |>
   rename(REG_ID = geo, 
          Country = `Geopolitical entity (reporting)`),
-  caption = "EuroStat Country codes and names",
+  caption = "Eurostat Country codes and names",
   align = "cc")
 ```
 
@@ -313,6 +315,136 @@ co_usage <- co_usage |> reformatting_full()
 
 # Data Analysis
 
+## Internet access
+
+### Country Level
+
+Over the past years, there has been a notable positive trend in global connectivity, with a substantial improvement in internet accessibility across the majority of countries. We can see that of most of these countries that over 85% of households gained access to internet. This progress underscores the widespread efforts and advancements in infrastructure, technology, and digital literacy initiatives on a global scale.
+
+In Luxembourg, the Netherlands and Denmark, 98% of households had internet access in 2022. The increament in Greece was of 50 percentage points, from 53.58% in 2012 to 85.49 % in 2022.
+
+```{r Top 5 and Below 5 Countries}
+rearranged_country <- co_house_access %>%
+  filter(Year %in% c("2012", "2022"), REG_ID %in% c("LU", "NL", "DK", "FI", "SE", "IE", "AT", "BE", "FR", "BG", "EL", "RO", "ME", "LT", "PT", "CY", "IT")) %>%
+  inner_join(country_ids, by = "REG_ID") %>%
+  mutate(Rank = rank(-Value)) %>%
+  arrange(Rank) %>%
+  select(-Rank)
+```
+
+```{r Comparison Graph}
+ggplot(rearranged_country, aes(x = fct_rev(fct_inorder(Country)), 
+                               y = Value, fill = as.factor(Year))) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8), 
+           width = 0.7, color = "white") +
+  labs(title = "Comparison of Countries in 2022 and 2012",
+       x = "Country",
+       y = "% Households with Internet Access") +
+  scale_fill_manual(values = c("2012" = "#3182bd", "2022" = "#de2d26"), 
+                    name = "Year") +
+  theme_minimal() +
+  coord_flip()
+```
+
+### Regional level
+
+This plot visualises the trend of internet access in various regions over time, offering a dynamic perspective on the changing landscape of household internet access. There is a general overall increase across all European regions over time.
+
+```{r}
+#| message: false
+map_reg <- get_eurostat_geospatial(resolution = 10, 
+                        nuts_level = 2, 
+                        year = 2016,
+                        crs = 3035)
+map_reg <- map_reg |>
+  select(id, NAME_LATN) |>
+  rename(REG_ID = id) 
+```
+
+```{r}
+reg_int_access |>
+  mutate(Year = factor(Year)) |>
+  ggplot(aes(x= Year, y=Value, group = REG_ID))+
+  geom_line(linewidth=0.05) +
+  labs(
+    title = "Internet Access in Regions over Time",
+    x = "Year",
+    y = "% of Households with Internet Access"
+  )
+```
+
+The maps compare internet access in 2014 and 2022 in the NUTS 2 Regions. 50% improvement in the North West Belgium. In Romania, regions such as South-Muntenia, South-West Oltenia, North-East and Center, had a more than 35% improvement.
+
+::: {layout-ncol="2"}
+::: {#2014}
+```{r}
+int_acc_map_reg <- reg_int_access |>
+  filter(Year=="2014") |>
+  full_join(map_reg, by=join_by(REG_ID)) |>
+  st_as_sf()
+```
+
+```{r regional_internet_access_map_2014}
+int_acc_map_reg |>
+  ggplot(aes(fill = Value)) +
+  geom_sf(size = 0.2) +
+  scale_fill_distiller(
+    direction = 1, 
+    name = "%",
+    na.value = "gray80") + 
+  scale_x_continuous(limits = c(2500000, 7000000)) +
+  scale_y_continuous(limits = c(1600000, 5200000)) +
+  theme_void() +
+  labs(title="Internet access by region in 2014")
+```
+:::
+
+<div>
+
+```{r}
+int_acc_map_reg_22 <- reg_int_access |>
+  filter(Year=="2022") |>
+  full_join(map_reg, by=join_by(REG_ID)) |>
+  st_as_sf()
+```
+
+```{r regional_internet_access_map_2022}
+int_acc_map_reg_22 |>
+  ggplot(aes(fill = Value)) +
+  geom_sf(size = 0.2) +
+  scale_fill_distiller(
+    direction = 1, 
+    name = "%",
+    na.value = "gray80") + 
+  scale_x_continuous(limits = c(2500000, 7000000)) +
+  scale_y_continuous(limits = c(1600000, 5200000)) +
+  theme_void() +
+  labs(title="Internet access by region in 2022")
+```
+
+</div>
+:::
+
+### Sweden
+
+As one of the top 5 countries in terms of internet access, Swedish regional data shows an overall stability with all regions remaining at above 80% of households having access; however, year on year changes are seemingly random and volatile. For example, Upper Norrland (SE32) went from a 100% access in 2020 to 82% in 2022. This may be due to the significant internal migration[^2], leaving households with no need for internet access; or conversely, a positive net migration for education or work, such as in metropolitan regions like Stockholm (SE11) or West Sweden (SE23), result in a less volatile pattern than regions with a negative net migration.
+
+[^2]: <https://www.scb.se/en/finding-statistics/statistics-by-subject-area/population/population-projections/demographic-analysis-demog/pong/statistical-news/demographic-analysis-internal-migration-in-sweden-moving-between-counties-20022021/>
+
+```{r}
+reg_int_access |>
+  mutate(Year = factor(Year)) |>
+  filter(str_detect(REG_ID, "SE")) |>
+  ggplot(aes(x= Year, y=Value, group = REG_ID, color = REG_ID))+
+  geom_line() +
+  labs(
+    title = "Internet Access in Swedish Regions over Time",
+    x = "Year",
+    y = "% of Households with Internet Access"
+  )
+```
+
+
 ## Broadband access
 
 Broadband refers to any infrastructure for high-speed internet access. According to the Europe 2020 strategy[^1], the European Union (EU) articulated three broadband-related targets in 2010:
@@ -325,7 +457,7 @@ Broadband refers to any infrastructure for high-speed internet access. According
 
 -   ensure that 50% or more of European households adopted ultra-fast broadband (surpassing 100 Mbps) by 2020.
 
-We review the progress by comparing broadband access in 2013 and 2022 at both more than 30 Mbps and more than100 Mbps. The observation is percentage of households with more than the targeted speed coverage.
+We review the progress by comparing broadband access in 2013 and 2022 at both more than 30 Mbps and more than 100 Mbps. The observation is the percentage of households with more than the targeted speed coverage.
 
 ### Country level
 
@@ -456,41 +588,7 @@ bb_map_co_22_100 |>
 </div>
 :::
 
-### Regional level
-
-```{r}
-#| message: false
-map_reg <- get_eurostat_geospatial(resolution = 10, 
-                        nuts_level = 2, 
-                        year = 2016,
-                        crs = 3035)
-map_reg <- map_reg |>
-  select(id, NAME_LATN) |>
-  rename(REG_ID = id) 
-```
-
-```{r}
-bb_map_reg <- reg_broadband |>
-  filter(Year=="2015") |>
-  full_join(map_reg, by=join_by(REG_ID)) |>
-  st_as_sf()
-```
-
-```{r regional_broadband_map}
-bb_map_reg |>
-  ggplot(aes(fill = Value)) +
-  geom_sf(size = 0.2) +
-  scale_fill_distiller(
-    direction = 1, 
-    name = "%",
-    na.value = "gray80") + 
-  scale_x_continuous(limits = c(2500000, 7000000)) +
-  scale_y_continuous(limits = c(1600000, 5200000)) +
-  theme_void() +
-  labs(title="Broadband access by region in 2013")
-```
-
-### Austria
+### Regional level: Austria
 
 ```{r}
 bb_reg <- reg_broadband |>
@@ -500,141 +598,52 @@ ggplot(bb_reg, aes(x = Year, y = Value, color = REG_ID)) +
   geom_line()
 ```
 
-## Internet access
+## Usage
 
-### Country Level
-
-Over the past years, there has been a notable positive trend in global connectivity, with a substantial improvement in internet accessibility across the majority of countries. We can see that of most of these countries that over 85% of households gained access to internet. This progress underscores the widespread efforts and advancements in infrastructure, technology, and digital literacy initiatives on a global scale.
-
-In Luxembourg, the Netherlands and Denmark, 98% of households had internet access in 2022. The increament in Greece was of 50 percentage points, from 53.58% in 2012 to 85.49 % in 2022.
-
-```{r Top 5 and Below 5 Countries}
-rearranged_country <- co_house_access %>%
-  filter(Year %in% c("2012", "2022"), REG_ID %in% c("LU", "NL", "DK", "FI", "SE", "IE", "AT", "BE", "FR", "BG", "EL", "RO", "ME", "LT", "PT", "CY", "IT")) %>%
-  inner_join(country_ids, by = "REG_ID") %>%
-  mutate(Rank = rank(-Value)) %>%
-  arrange(Rank) %>%
-  select(-Rank)
-```
-
-```{r Comparison Graph}
-ggplot(rearranged_country, aes(x = fct_rev(fct_inorder(Country)), 
-                               y = Value, fill = as.factor(Year))) +
-  geom_bar(stat = "identity", position = position_dodge(width = 0.8), 
-           width = 0.7, color = "white") +
-  labs(title = "Comparison of Countries in 2022 and 2012",
-       x = "Country",
-       y = "% Households with Internet Access") +
-  scale_fill_manual(values = c("2012" = "#3182bd", "2022" = "#de2d26"), 
-                    name = "Year") +
-  theme_minimal() +
-  coord_flip()
-```
-
-### Regional level
-
-This plot visualises the trend of internet access in various regions over time, offering a dynamic perspective on the changing landscape of household internet access. There is a general overall increase across all European regions over time.
+### Shopping: Netherlands
 
 ```{r}
-reg_int_access |>
-  mutate(Year = factor(Year)) |>
-  ggplot(aes(x= Year, y=Value, group = REG_ID))+
-  geom_line(linewidth=0.05) +
-  labs(
-    title = "Internet Access in Regions over Time",
-    x = "Year",
-    y = "% of Households with Internet Access"
-  )
+employed <- co_usage[["int_emp"]] |>
+  select(indic_is, REG_ID, Year, SAL_SELF_FAM) |>
+  filter(indic_is %in% c("I_IUIF", "I_IUSELL"), REG_ID == "NL") |>
+  pivot_wider(names_from = indic_is, values_from = SAL_SELF_FAM)
 ```
-
-The maps compare internet access in 2014 and 2022 in the NUTS Regions. 50% improvement in the North West Belgium. In Romania, regions such as South-Muntenia, South-West Oltenia, North-East and Center, had a more than 35% improvement.
-
-::: {layout-ncol="2"}
-::: {#2014}
-```{r}
-int_acc_map_reg <- reg_int_access |>
-  filter(Year=="2014") |>
-  full_join(map_reg, by=join_by(REG_ID)) |>
-  st_as_sf()
-```
-
-```{r regional_internet_access_map_2014}
-int_acc_map_reg |>
-  ggplot(aes(fill = Value)) +
-  geom_sf(size = 0.2) +
-  scale_fill_distiller(
-    direction = 1, 
-    name = "%",
-    na.value = "gray80") + 
-  scale_x_continuous(limits = c(2500000, 7000000)) +
-  scale_y_continuous(limits = c(1600000, 5200000)) +
-  theme_void() +
-  labs(title="Internet access by region in 2014")
-```
-:::
-
-<div>
 
 ```{r}
-int_acc_map_reg_22 <- reg_int_access |>
-  filter(Year=="2022") |>
-  full_join(map_reg, by=join_by(REG_ID)) |>
-  st_as_sf()
+shop_pattern <- co_house_access |>
+  filter(REG_ID == "NL") |>
+  inner_join(employed, by = c("REG_ID", "Year"))
 ```
-
-```{r regional_internet_access_map_2022}
-int_acc_map_reg_22 |>
-  ggplot(aes(fill = Value)) +
-  geom_sf(size = 0.2) +
-  scale_fill_distiller(
-    direction = 1, 
-    name = "%",
-    na.value = "gray80") + 
-  scale_x_continuous(limits = c(2500000, 7000000)) +
-  scale_y_continuous(limits = c(1600000, 5200000)) +
-  theme_void() +
-  labs(title="Internet access by region in 2022")
-```
-
-</div>
-:::
-
-### Sweden
-
-As one of the top 5 countries in terms of internet access, Swedish regional data shows an overall stability with all regions remaining at above 80% of households having access; however, year on year changes are seemingly random and volatile. For example, Upper Norrland (SE32) went from a 100% access in 2020 to 82% in 2022. This may be due to the significant internal migration[^2], leaving households with no need for internet access; or conversely, a positive net migration for education or work, such as in metropolitan regions like Stockholm (SE11) or West Sweden (SE23), result in a less volatile pattern than regions with a negative net migration.
-
-[^2]: <https://www.scb.se/en/finding-statistics/statistics-by-subject-area/population/population-projections/demographic-analysis-demog/pong/statistical-news/demographic-analysis-internal-migration-in-sweden-moving-between-counties-20022021/>
 
 ```{r}
-reg_int_access |>
-  mutate(Year = factor(Year)) |>
-  filter(str_detect(REG_ID, "SE")) |>
-  ggplot(aes(x= Year, y=Value, group = REG_ID, color = REG_ID))+
-  geom_line() +
-  labs(
-    title = "Internet Access in Swedish Regions over Time",
-    x = "Year",
-    y = "% of Households with Internet Access"
-  )
+model <- lm(Value ~ I_IUIF + I_IUSELL, data =shop_pattern)
+summary(model)
 ```
 
-## Shopping
-
-### Regional level
-
-This plot illustrates the evolution of internet shopping behavior across regions, providing insights into the changing trends in online commerce.
+-   R-squared is 0.8186, 81.86% of the variability in Value explained by the model.
+-   Significant positive relationship between I_IUIF and Value.
+-   I_IUSELL is not significant.
 
 ```{r}
-reg_shopping |>
-  mutate(Year = factor(Year)) |>
-  ggplot(aes(x= Year, y=Value, group = REG_ID))+
-  geom_line(linewidth=0.05) +
-  labs(
-    title = "Internet Shopping in Regions Over Time",
-    x = "Year",
-    y = "% of Individuals who shopped using internet"
-  )
+confint(model)
 ```
+
+-   The interval for I_IUIF does not include zero, indicating statistical significance.
+-   The interval for I_IUSELL includes zero, suggesting a lack of statistical significance.
+
+```{r}
+#| message: false
+ggplot(model, aes(x = I_IUSELL, y = I_IUIF)) +
+  geom_point() + 
+  geom_smooth(method = "loess")+
+  labs(x = "I_IUSELL", y = "I_IUIF")
+```
+
+### Shopping: Regional level
+
+These maps illustrate the evolution of internet shopping behavior across regions, providing insights into the changing trends in online commerce.
+
+
 ```{r}
 shop_reg_14 <- reg_shopping |>
   filter(Year=="2014") |>
@@ -680,108 +689,6 @@ shop_reg_21 |>
 :::
 :::
 
-### Linear Model: Netherlands
-
-```{r}
-employed <- co_usage[["int_emp"]] |>
-  select(indic_is, REG_ID, Year, SAL_SELF_FAM) |>
-  filter(indic_is %in% c("I_IUIF", "I_IUSELL"), REG_ID == "NL") |>
-  pivot_wider(names_from = indic_is, values_from = SAL_SELF_FAM)
-```
-
-```{r}
-shop_pattern <- co_house_access |>
-  filter(REG_ID == "NL") |>
-  inner_join(employed, by = c("REG_ID", "Year"))
-```
-
-```{r}
-model <- lm(Value ~ I_IUIF + I_IUSELL, data =shop_pattern)
-summary(model)
-```
-
--   R-squared is 0.8186, 81.86% of the variability in Value explained by the model.
--   Significant positive relationship between I_IUIF and Value.
--   I_IUSELL is not significant.
-
-```{r}
-confint(model)
-```
-
--   The interval for I_IUIF does not include zero, indicating statistical significance.
--   The interval for I_IUSELL includes zero, suggesting a lack of statistical significance.
-
-```{r}
-#| message: false
-ggplot(model, aes(x = I_IUSELL, y = I_IUIF)) +
-  geom_point() + 
-  geom_smooth(method = "loess")+
-  labs(x = "I_IUSELL", y = "I_IUIF")
-```
-
-## Usage
-
-### Employment status
-
-::: {layout-ncol="2"}
-::: {#text}
-On average, across all European countries, students dominate the proportion of internet usage across almost all areas with, for example, 100% of students using the internet for instant messaging (I_IUCHAT1) and watching internet streamed TV or videos (I_IUSTVV).
-Retired individuals are consistently the lowest proportion, only surprassing the unemployed through using the internet for online banking.
-:::
-
-::: {#graph}
-```{r}
-zz <- co_usage[["internet"]] |>
-  filter(ind_type==c("RETIR_OTHER", "SAL_SELF_FAM", 
-                     "STUD", "UNE")) |>
-  filter(Year=="2022")
-```
-
-```{r}
-ggplot(zz, aes(x = indic_is, y=Value, 
-               fill = ind_type)) +
-  geom_col(position = "dodge") +
-  scale_fill_discrete(name = "Employment status") +
-  labs(y = "%", x = "Indicator type", 
-       title = "Internet usage by Employment in 2022")+
-  theme(axis.text.x = element_text(angle=90))
-```
-:::
-:::
-
-```{r}
-ggplot(zz, aes(x = indic_is, y=Value, 
-               fill = ind_type)) +
-  geom_col(position = "dodge") +
-  scale_fill_discrete(name = "Employment status") +
-  labs(y = "%", x = "Indicator type", 
-       title = "Internet usage by Employment in 2022")+
-  theme(axis.text.x = element_text(angle=90)) +
-  facet_wrap(~ind_type)
-```
-
-
-### Social Network: Cyprus
-::: {layout-ncol="2"}
-::: {#text}
-This plot compares employment-wise usage for *participating in social networks (creating user profile, posting messages or other contributions to facebook, twitter, etc.)* over 2014-22. There is a visible increase in usage made by retired, self employed, and unemployed individuals, and a steady rate maintained by students.
-:::
-
-::: {#graph}
-```{r}
-emp <- co_usage[["internet"]] |>
-  filter(ind_type==c("RETIR_OTHER", "SAL_SELF_FAM", 
-                     "STUD", "UNE")) |>
-  filter(REG_ID=="CY") |>
-  filter(indic_is=="I_IUSNET")
-emp |>
-  ggplot(aes(x = Year, y=Value, color = ind_type)) +
-  geom_line() +
-  labs(y = "%", title = "Participating in social networks in Cyprus by employment status", )
-```
-:::
-:::
-
 ### Hungary
 
 There is a clear increase in internet usage across most types.
@@ -798,6 +705,92 @@ ggplot(aa, aes(x= indic_is, y=Value,
        title = "Internet usage by type in 2019 and 2022, Hungary")+
   theme(axis.text.x = element_text(angle=90))
 ```
+
+
+### Employment status
+
+On average, across all European countries, students dominate the proportion of internet usage across almost all areas with, for example, 100% of students using the internet for instant messaging (I_IUCHAT1) and watching internet streamed TV or videos (I_IUSTVV).
+Retired individuals are consistently the lowest proportion, only surprassing the unemployed through using the internet for online banking.
+
+```{r}
+zz <- co_usage[["internet"]] |>
+  filter(ind_type==c("RETIR_OTHER", "SAL_SELF_FAM", 
+                     "STUD", "UNE")) |>
+  filter(Year=="2022")
+```
+
+```{r}
+ggplot(zz, aes(x = indic_is, y=Value, 
+               fill = ind_type)) +
+  geom_col(position = "dodge") +
+  scale_fill_discrete(name = "Employment status") +
+  labs(y = "%", x = "Indicator type", 
+       title = "Internet usage by Employment in 2022")+
+  theme(axis.text.x = element_text(angle=90))
+```
+
+```{r}
+ggplot(zz, aes(x = indic_is, y=Value, 
+               fill = ind_type)) +
+  geom_col(position = "dodge") +
+  scale_fill_discrete(name = "Employment status") +
+  labs(y = "%", x = "Indicator type", 
+       title = "Internet usage by Employment in 2022")+
+  theme(axis.text.x = element_text(angle=90)) +
+  facet_wrap(~ind_type)
+```
+
+
+### Social Network: Cyprus
+
+This plot compares employment-wise usage for *participating in social networks (creating user profile, posting messages or other contributions to facebook, twitter, etc.)* over 2014-22. There is a visible increase in usage made by retired, self employed, and unemployed individuals, and a steady rate maintained by students.
+
+```{r}
+emp <- co_usage[["internet"]] |>
+  filter(ind_type==c("RETIR_OTHER", "SAL_SELF_FAM", 
+                     "STUD", "UNE")) |>
+  filter(REG_ID=="CY") |>
+  filter(indic_is=="I_IUSNET")
+emp |>
+  ggplot(aes(x = Year, y=Value, color = ind_type)) +
+  geom_line() +
+  labs(y = "%", title = "Participating in social networks in Cyprus by employment status")
+```
+
+### Playing or downloading games: Italy
+::: {layout-ncol="2"}
+::: {#fem}
+```{r}
+fm_cy <- co_usage[["int_female"]] |>
+  pivot_longer(cols = 4:8, names_to = "Ages") |>
+  filter(indic_is == "I_IUPDG", REG_ID == "IT") |>
+  mutate(Year = factor(Year))
+  
+fm_cy |>
+  ggplot(aes(x = Year, y=value, group = Ages, color = Ages)) +
+  geom_line(na.rm=TRUE) +
+  labs(y = "%", title = "Playing or downloading games in Italy by Age - Female" ) +
+  xlim("2018", "2019", "2020", "2021", "2022") +
+  ylim(c(0, 100))
+```
+:::
+
+::: {#mal}
+```{r}
+m_cy <- co_usage[["int_male"]] |>
+  pivot_longer(cols = 4:8, names_to = "Ages") |>
+  filter(indic_is == "I_IUPDG", REG_ID == "CY") |>
+  mutate(Year = factor(Year))
+  
+m_cy |>
+  ggplot(aes(x = Year, y=value, group = Ages, color = Ages)) +
+  geom_line(na.rm=TRUE) +
+  labs(y = "%", title = "Playing or downloading games in Italy by Age - Male" ) +
+  xlim("2018", "2019", "2020", "2021", "2022") +
+  ylim(c(0, 100))
+```
+:::
+:::
 
 ### Seeking health information: Albania
 
@@ -838,7 +831,7 @@ co_usage[["int_male"]] |>
 :::
 
 
-### Gender
+### Online course: France
 
 This plot compares gender-wise usage for *doing an online course* by for individuals aged 16 to 24 over 2011-22. While we see a steady growth in the percentage of individuals doing an online course, the female (blue) population has surpassed male (red) users. This can be interpreted as an increase in access among homemakers.
 
@@ -898,16 +891,16 @@ For ease of cleaning, multiple functions have been created.
 
 A code removes the unnecessary columns, leaving the OECD regional broadband access data to consist of the Regional ID, Year, and percentage Value.
 
-### Formatting EuroStat regional data
+### Formatting Eurostat regional data
 
 Data for regional "Individual regular internet use", "Internet access", and "Goods and services shopping" also now contain only the Regional ID, Year, and Value variables.
 
-### Formatting EuroStat country data
+### Formatting Eurostat country data
 
 Reformatting is done, same as previously, for country level Internet access.
 
 Country level broadband access speed is reformatted and pivoted to display the different speeds as additional variables
 
-#### Formatting EuroStat full internet usage dataset by country
+#### Formatting Eurostat full internet usage dataset by country
 
 First, a function is created to split the dataset into comprehensible country, indicator, and individual type codes, as well as removal of unnecessary columns. Then, pivoting the data allows for further separation by Sex and Employment status. All these datasets are placed in a list.
