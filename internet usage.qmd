@@ -321,7 +321,7 @@ co_usage <- co_usage |> reformatting_full()
 
 Over the past years, there has been a notable positive trend in global connectivity, with a substantial improvement in internet accessibility across the majority of countries. We can see that of most of these countries that over 85% of households gained access to internet. This progress underscores the widespread efforts and advancements in infrastructure, technology, and digital literacy initiatives on a global scale.
 
-In Luxembourg, the Netherlands and Denmark, 98% of households had internet access in 2022. The increament in Greece was of 50 percentage points, from 53.58% in 2012 to 85.49 % in 2022.
+In Luxembourg, Netherlands and Denmark, 98% of households had internet access in 2022. The increament in Greece was of 50 percentage points, from 53.58% in 2012 to 85.49 % in 2022.
 
 ```{r Top 5 and Below 5 Countries}
 rearranged_country <- co_house_access %>%
@@ -391,7 +391,8 @@ int_acc_map_reg |>
   scale_fill_distiller(
     direction = 1, 
     name = "%",
-    na.value = "gray80") + 
+    na.value = "gray80",
+    limits=c(40, 100)) + 
   scale_x_continuous(limits = c(2500000, 7000000)) +
   scale_y_continuous(limits = c(1600000, 5200000)) +
   theme_void() +
@@ -415,7 +416,8 @@ int_acc_map_reg_22 |>
   scale_fill_distiller(
     direction = 1, 
     name = "%",
-    na.value = "gray80") + 
+    na.value = "gray80",
+    limits=c(40, 100)) + 
   scale_x_continuous(limits = c(2500000, 7000000)) +
   scale_y_continuous(limits = c(1600000, 5200000)) +
   theme_void() +
@@ -427,9 +429,9 @@ int_acc_map_reg_22 |>
 
 ### Sweden
 
-As one of the top 5 countries in terms of internet access, Swedish regional data shows an overall stability with all regions remaining at above 80% of households having access; however, year on year changes are seemingly random and volatile. For example, Upper Norrland (SE32) went from a 100% access in 2020 to 82% in 2022. This may be due to the significant internal migration[^2], leaving households with no need for internet access; or conversely, a positive net migration for education or work, such as in metropolitan regions like Stockholm (SE11) or West Sweden (SE23), result in a less volatile pattern than regions with a negative net migration.
+As one of the top 5 countries in terms of internet access, Swedish regional data shows an overall stability with all regions remaining at above 80% of households having access; however, year on year changes are seemingly random and volatile. For example, Upper Norrland (SE32) went from a 100% access in 2020 to 82% in 2022. This may be due to the significant internal migration[^1], leaving households with no need for internet access; or conversely, positive net migration for education or work, such as in metropolitan regions like Stockholm (SE11) or West Sweden (SE23), result in a less volatile pattern than regions with a negative net migration.
 
-[^2]: <https://www.scb.se/en/finding-statistics/statistics-by-subject-area/population/population-projections/demographic-analysis-demog/pong/statistical-news/demographic-analysis-internal-migration-in-sweden-moving-between-counties-20022021/>
+[^1]: <https://www.scb.se/en/finding-statistics/statistics-by-subject-area/population/population-projections/demographic-analysis-demog/pong/statistical-news/demographic-analysis-internal-migration-in-sweden-moving-between-counties-20022021/>
 
 ```{r}
 reg_int_access |>
@@ -447,9 +449,9 @@ reg_int_access |>
 
 ## Broadband access
 
-Broadband refers to any infrastructure for high-speed internet access. According to the Europe 2020 strategy[^1], the European Union (EU) articulated three broadband-related targets in 2010:
+Broadband refers to any infrastructure for high-speed internet access. According to the Europe 2020 strategy[^2], the European Union (EU) articulated three broadband-related targets in 2010:
 
-[^1]: <https://www.eca.europa.eu/Lists/ECADocuments/SR18_12/SR_BROADBAND_EN.pdf>
+[^2]: <https://www.eca.europa.eu/Lists/ECADocuments/SR18_12/SR_BROADBAND_EN.pdf>
 
 -   extend basic broadband (up to 30 Megabits per second, Mbps) accessibility to all Europeans by 2013.
 
@@ -503,7 +505,8 @@ bb_map_co_13 |>
   scale_fill_viridis_c(
     direction = -1,
     name = "%",
-    na.value = "gray80") + 
+    na.value = "gray80",
+    limits=c(10, 100)) + 
   scale_x_continuous(limits = c(-10, 35)) +
   scale_y_continuous(limits = c(35, 65)) +
   theme_void() +
@@ -520,7 +523,8 @@ bb_map_co_22 |>
   scale_fill_viridis_c(
     direction = -1,
     name = "%",
-    na.value = "gray80") + 
+    na.value = "gray80",
+    limits=c(10, 100)) + 
   scale_x_continuous(limits = c(-10, 35)) +
   scale_y_continuous(limits = c(35, 65)) +
   theme_void() +
@@ -558,7 +562,8 @@ bb_map_co_13_100 |>
   scale_fill_viridis_c(
     direction = -1,
     name = "%",
-    na.value = "gray80") + 
+    na.value = "gray80",
+    limits=c(0, 100)) + 
   scale_x_continuous(limits = c(-10, 35)) +
   scale_y_continuous(limits = c(35, 65)) +
   theme_void() +
@@ -577,7 +582,8 @@ bb_map_co_22_100 |>
   scale_fill_viridis_c(
     direction = -1,
     name = "%",
-    na.value = "gray80") + 
+    na.value = "gray80",
+    limits=c(0, 100)) + 
   scale_x_continuous(limits = c(-10, 35)) +
   scale_y_continuous(limits = c(35, 65)) +
   theme_void() +
@@ -664,7 +670,8 @@ shop_reg_14 |>
   scale_fill_distiller(
     direction = 1, 
     name = "%",
-    na.value = "gray80") + 
+    na.value = "gray80",
+    limits=c(0, 100)) + 
   scale_x_continuous(limits = c(2500000, 7000000)) +
   scale_y_continuous(limits = c(1600000, 5200000)) +
   theme_void() +
@@ -680,7 +687,8 @@ shop_reg_21 |>
   scale_fill_distiller(
     direction = 1, 
     name = "%",
-    na.value = "gray80") + 
+    na.value = "gray80",
+    limits=c(0, 100)) + 
   scale_x_continuous(limits = c(2500000, 7000000)) +
   scale_y_continuous(limits = c(1600000, 5200000)) +
   theme_void() +
