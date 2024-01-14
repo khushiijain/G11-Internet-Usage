@@ -16,6 +16,7 @@ format:
     toc_depth: 2
     number-sections: true
     colorlinks: true
+    geometry: margin=0.75in
 ---
 
 ```{r}
@@ -38,17 +39,19 @@ library(giscoR)
 
 # Research Question
 
-**Exploring Internet Usage Patterns: A Comprehensive Analysis across European Regions and Countries**
+**Exploring Internet Usage Patterns:** 
 
-This research aims to conduct a comprehensive analysis of internet usage patterns in Europe. Focusing on individual behaviors related to health information seeking, online learning, and music streaming, the study explores the influence of age, gender, and employment status. Additionally, it examines internet access at regional and national levels, along with broadband coverage and speeds over time.
+**A Comprehensive Analysis across European Regions and Countries**
+
+Is there a link between country population and type of internet usage? This research aims to conduct a comprehensive analysis of internet usage patterns in Europe. Focusing on individual behaviors related to health information seeking, online learning, and gaming, the study explores the influence of age, gender, and employment status. Additionally, it examines internet access at regional and national levels, along with broadband coverage and speeds over time.
 
 1.  **Behavioral Patterns:** Investigate internet usage behaviors concerning health information, online learning, gaming, e-commerce, and banking services.
 
 2.  **Demographic Impact:** Analyze the impact of age, gender, and employment status on internet usage.
 
-3.  **Geographic Analysis:** Examine internet access trends regionally and nationally.
+3.  **Geographic Analysis:** Examine internet access trends across European nations and their regions over time.
 
-4.  **Broadband Coverage:** Assess broadband internet coverage and speeds over the study period.
+4.  **Broadband Coverage:** Assess broadband internet coverage by country, region, and speeds, over the study period.
 
 5.  **Variable Exploration:** Delve into various variables related to internet usage for a nuanced understanding.
 
@@ -603,8 +606,9 @@ bb_map_co_22_100 |>
 </div>
 :::
 
-### Regional level: Austria
+### Austria
 
+Regional level data shows similar trends, with all Austrian regions exhibiting a near logarithmic growth.
 ```{r}
 bb_reg <- reg_broadband |>
   filter(str_detect(REG_ID, "AT"))
@@ -679,7 +683,7 @@ ggplot(model, aes(x = I_IUIF, y = I_IUSELL)) +
 
 ### Shopping: Regional level
 
-These maps illustrate the evolution of internet shopping behavior across regions, providing insights into the changing trends in online commerce.
+These maps illustrate the evolution of internet shopping behavior across regions, providing insights into the changing trends in online commerce. There is a definitive increase in using the internet for online shopping across Europe.
 
 ```{r}
 shop_reg_14 <- reg_shopping |>
@@ -732,7 +736,7 @@ shop_reg_21 |>
 
 ### Hungary
 
-There is a clear increase in internet usage across most types between 2019-2022. There has been more than 100% increase in the percentage of individuals accessing an online learning material (*I_IUOLM*).
+There is a clear increase in internet usage across most types between 2019-2022. There has been a more than 30% increase in the percentage of individuals accessing an online learning material (*I_IUOLM*), likely attributed to the increased accessibility for remote learning following the Covid-19 pandemic.
 
 ```{r}
 aa <- co_usage[["internet"]] |>
@@ -795,44 +799,6 @@ emp |>
   labs(y = "%", title = "Participating in social networks in Cyprus by employment status")
 ```
 
-### Playing or downloading games: Italy
-
-There plots represent the problem of less female representation in the gaming industry in Italy.
-
-::: {layout-ncol="2"}
-::: {#fem}
-```{r}
-fm_cy <- co_usage[["int_female"]] |>
-  pivot_longer(cols = 4:8, names_to = "Ages") |>
-  filter(indic_is == "I_IUPDG", REG_ID == "IT") |>
-  mutate(Year = factor(Year))
-  
-fm_cy |>
-  ggplot(aes(x = Year, y=value, group = Ages, color = Ages)) +
-  geom_line(na.rm=TRUE) +
-  labs(y = "%", title = "Playing or downloading games in Italy by Age - Female" ) +
-  xlim("2018", "2019", "2020", "2021", "2022") +
-  ylim(c(0, 100))
-```
-:::
-
-::: {#mal}
-```{r}
-m_cy <- co_usage[["int_male"]] |>
-  pivot_longer(cols = 4:8, names_to = "Ages") |>
-  filter(indic_is == "I_IUPDG", REG_ID == "CY") |>
-  mutate(Year = factor(Year))
-  
-m_cy |>
-  ggplot(aes(x = Year, y=value, group = Ages, color = Ages)) +
-  geom_line(na.rm=TRUE) +
-  labs(y = "%", title = "Playing or downloading games in Italy by Age - Male" ) +
-  xlim("2018", "2019", "2020", "2021", "2022") +
-  ylim(c(0, 100))
-```
-:::
-:::
-
 ### Seeking health information: Albania
 
 The plots below focus on the internet usage behavior in Albania, particularly in seeking health information, segmented by different age groups and gender. The increase in seeking health information on the internet around 2020 can be attributed to the Covid-19 pandemic, and the decline in the trend in 2022 implies the end of the perceived threat of the virus.
@@ -871,6 +837,45 @@ co_usage[["int_male"]] |>
 :::
 :::
 
+### Playing or downloading games: Italy
+
+Using the internet to play or download games seems to have the widest usage divergence by gender, with males reaching up to 30% higher usage than females in Italy. Though there is little gender variation within the older age ranges of 45 to 74 years old, the three younger age ranges consistently display the imbalance of significantly lower female representation in the gaming industry. 
+
+::: {layout-ncol="2"}
+<div>
+```{r}
+fm_cy <- co_usage[["int_female"]] |>
+  pivot_longer(cols = 4:8, names_to = "Ages") |>
+  filter(indic_is == "I_IUPDG", REG_ID == "IT") |>
+  mutate(Year = factor(Year))
+  
+fm_cy |>
+  ggplot(aes(x = Year, y=value, group = Ages, color = Ages)) +
+  geom_line(na.rm=TRUE) +
+  labs(y = "%", title = "Playing or downloading games in Italy by Age - Female" ) +
+  xlim("2018", "2019", "2020", "2021", "2022") +
+  ylim(c(0, 100))
+```
+</div>
+
+<div>
+```{r}
+m_cy <- co_usage[["int_male"]] |>
+  pivot_longer(cols = 4:8, names_to = "Ages") |>
+  filter(indic_is == "I_IUPDG", REG_ID == "CY") |>
+  mutate(Year = factor(Year))
+  
+m_cy |>
+  ggplot(aes(x = Year, y=value, group = Ages, color = Ages)) +
+  geom_line(na.rm=TRUE) +
+  labs(y = "%", title = "Playing or downloading games in Italy by Age - Male" ) +
+  xlim("2018", "2019", "2020", "2021", "2022") +
+  ylim(c(0, 100))
+```
+</div>
+:::
+
+
 ### Online course: France
 
 This plot compares gender-wise usage for *doing an online course* by for individuals aged 16 to 24 over 2011-22. While we see a steady growth in the percentage of individuals doing an online course, the female (blue) population has surpassed male (red) users. This can be interpreted as an increase in access among homemakers.
@@ -892,6 +897,9 @@ ggplot(aes(x = Year)) +
 The extensive analysis of internet usage patterns across European Union member states revealed compelling insights into the dynamics of digital engagement. We dwell deeper into different usages of internet: e-commerce, engagements in social networks, seeking health information, recreational activities and online learning resources.
 
 The findings of this study underscore significant improvements in internet access and broadband coverage over the past twelve years among European Union member states. While some nations met the initial 2010 targets for basic broadband accessibility, others demonstrated substantial progress, marking a notable shift towards fast and ultra-fast broadband. The surge in households exceeding 30 Mbps and 100 Mbps illustrates the transformative trajectory of digital connectivity. Regional analysis highlights dynamic shifts in internet access patterns, particularly evident in regions like North West Belgium and specific areas in Romania, emphasizing the importance of considering regional nuances in comprehending the evolving digital landscape. The positive trends at both country and regional levels reflect collective efforts and advancements in digital infrastructure and literacy initiatives.
+
+Depending on the type of usage, there is little distinction between the genders, with fairly similar trends across time; however, there is a significant variation between the different ages. With as large as a 50% gap, individuals between the ages 55 and 74 consistently consume far less internet than the younger population.
+With the European retirement age set at above 60 years, that age category makes up a large portion of the retired or other indicator type. As such, this conclusion can also be applied to the employment status. 
 
 Luxembourg, the Netherlands, and Denmark emerge as front-runners. The analysis within the countries and regions give results on different demographical aspects. Overall, the positive trends observed at both country and regional levels reflect the concerted efforts and advancements in digital infrastructure and literacy initiatives across European Union member states.
 
