@@ -39,7 +39,7 @@ library(giscoR)
 
 # Research Question
 
-**Exploring Internet Usage Patterns:** 
+**Exploring Internet Usage Patterns:**
 
 **A Comprehensive Analysis across European Regions and Countries**
 
@@ -609,23 +609,43 @@ bb_map_co_22_100 |>
 ### Austria
 
 Regional level data shows similar trends, with all Austrian regions exhibiting a near logarithmic growth.
+
 ```{r}
 bb_reg <- reg_broadband |>
   filter(str_detect(REG_ID, "AT"))
 
 ggplot(bb_reg, aes(x = Year, y = Value, color = REG_ID)) +
-  geom_line()
+  geom_line() +
+  ylab("%")
 ```
+
 
 ## Usage
 
+### Indicators: Hungary
+
+There is a clear increase in internet usage across most types between 2019-2022. There has been a more than 30% increase in the percentage of individuals accessing an online learning material (*I_IUOLM*), likely also attributed to the increased accessibility for remote learning following the lockdown during the Covid-19 pandemic.
+
+```{r}
+aa <- co_usage[["internet"]] |>
+  filter(Year==c(2019, 2022)) |>
+  filter(REG_ID=="HU")
+ggplot(aa, aes(x= indic_is, y=Value, 
+               fill = as.factor(Year))) +
+  geom_col(position = "dodge") +
+  scale_fill_discrete(name = "Year") +
+  labs(y = "%", x = "Indicator type", 
+       title = "Internet usage by type in 2019 and 2022, Hungary")+
+  theme(axis.text.x = element_text(angle=90))
+```
+
 ### Online Shopping Patterns: Netherlands Linear Model Analysis
 
-According to a Eurostat survey in 2021, Netherlands had the highest shares of internet users who bought or ordered goods or services over the internet in the 12 months prior to the survey were recorded in the Netherlands (94%)3. The primary focus is on the relationship between the dependent variable "Value" and the independent variables "*I_IUIF*- finding information about goods and services" and "*I_IUSELL* - selling goods or services." We choose the individuals categorized as *SAL_SELF_FAM-* employees, self-employed, family workers.
+According to a Eurostat survey in 2021, Netherlands had the highest shares of internet users who bought or ordered goods or services over the internet in the 12 months prior to the survey were recorded in the Netherlands (94%). The primary focus is on the relationship between the dependent variable "Value" and the independent variables "*I_IUIF* - finding information about goods and services" and "*I_IUSELL* - selling goods or services." We choose the individuals categorized as *SAL_SELF_FAM* - employees,  self-employed,  family workers.
 
 The linear model can be expressed as follows:
 
-`Value = 21.84471 + 0.80559 × I_IUIF+ 0.02079 × I_IUSELL`
+`Value = 21.84471 + 0.80559 × I_IUIF + 0.02079 × I_IUSELL`
 
 ```{r}
 employed <- co_usage[["int_emp"]] |>
@@ -663,15 +683,15 @@ confint(model)
 
 -   For the intercept, the 95% confidence interval ranges from -9.7664 to 53.4558.
 
--   The interval for "I_IUIF" (0.4431 to 1.1681) does not include zero, signifying its statistical significance.
+-   The interval for *"I_IUIF"* (0.4431 to 1.1681) does not include zero, signifying its statistical significance.
 
--   On the other hand, the interval for "I_IUSELL" (-0.0594 to 0.1010) includes zero, suggesting a lack of statistical significance.
+-   On the other hand, the interval for *"I_IUSELL"* (-0.0594 to 0.1010) includes zero, suggesting a lack of statistical significance.
 
--   The linear model suggests that "I_IUIF" significantly influences the dependent variable "Value," while "I_IUSELL" does not exhibit a statistically significant effect. These findings provide insights into the online shopping patterns in the Netherlands, emphasizing the importance of certain factors in determining the value of online transactions.
+-   The linear model suggests that *"I_IUIF"* significantly influences the dependent variable *"Value"*, while *"I_IUSELL"* does not exhibit a statistically significant effect. These findings provide insights into the online shopping patterns in the Netherlands, emphasising the importance of certain factors in determining the value of online transactions.
 
-The graph represents the correlation between the proportion of individuals engaged in online selling and those utilizing the internet to seek information on goods and services. Despite a consistent upward trend in the percentage of individuals expressing interest in information retrieval, the same pattern is not observed in the domain of commercial activities.
+The graph below demonstrates the correlation between the proportion of individuals engaged in online selling and those utilizing the internet to seek information on goods and services. Despite a consistent upward trend in the percentage of individuals expressing interest in information retrieval, the same pattern is not observed in the domain of commercial activities.
 
-This discrepancy sheds light on a crucial aspect of e-sellers' behavior. Notably, there has been a noticeable improvement in the percentage over the past three years, with the lockdown period emerging as a significant contributing factor to this shift.
+This discrepancy sheds light on a crucial aspect of e-sellers' behavior. Notably, there has been a noticeable improvement in the percentage over the past three years, with the lockdown period during the Covid-19 pandemic emerging as a significant contributing factor to this shift.
 
 ```{r}
 #| message: false
@@ -733,23 +753,6 @@ shop_reg_21 |>
 ```
 :::
 :::
-
-### Hungary
-
-There is a clear increase in internet usage across most types between 2019-2022. There has been a more than 30% increase in the percentage of individuals accessing an online learning material (*I_IUOLM*), likely attributed to the increased accessibility for remote learning following the Covid-19 pandemic.
-
-```{r}
-aa <- co_usage[["internet"]] |>
-  filter(Year==c(2019, 2022)) |>
-  filter(REG_ID=="HU")
-ggplot(aa, aes(x= indic_is, y=Value, 
-               fill = as.factor(Year))) +
-  geom_col(position = "dodge") +
-  scale_fill_discrete(name = "Year") +
-  labs(y = "%", x = "Indicator type", 
-       title = "Internet usage by type in 2019 and 2022, Hungary")+
-  theme(axis.text.x = element_text(angle=90))
-```
 
 ### Employment status
 
@@ -839,10 +842,11 @@ co_usage[["int_male"]] |>
 
 ### Playing or downloading games: Italy
 
-Using the internet to play or download games seems to have the widest usage divergence by gender, with males reaching up to 30% higher usage than females in Italy. Though there is little gender variation within the older age ranges of 45 to 74 years old, the three younger age ranges consistently display the imbalance of significantly lower female representation in the gaming industry. 
+Using the internet to play or download games seems to have the widest usage divergence by gender, with males reaching up to 30% higher usage than females in Italy. Though there is little gender variation within the older age ranges of 45 to 74 years old, the three younger age ranges consistently display the imbalance of significantly lower female representation in the gaming industry.
 
 ::: {layout-ncol="2"}
 <div>
+
 ```{r}
 fm_cy <- co_usage[["int_female"]] |>
   pivot_longer(cols = 4:8, names_to = "Ages") |>
@@ -856,9 +860,11 @@ fm_cy |>
   xlim("2018", "2019", "2020", "2021", "2022") +
   ylim(c(0, 100))
 ```
+
 </div>
 
 <div>
+
 ```{r}
 m_cy <- co_usage[["int_male"]] |>
   pivot_longer(cols = 4:8, names_to = "Ages") |>
@@ -872,9 +878,9 @@ m_cy |>
   xlim("2018", "2019", "2020", "2021", "2022") +
   ylim(c(0, 100))
 ```
+
 </div>
 :::
-
 
 ### Online course: France
 
@@ -898,8 +904,7 @@ The extensive analysis of internet usage patterns across European Union member s
 
 The findings of this study underscore significant improvements in internet access and broadband coverage over the past twelve years among European Union member states. While some nations met the initial 2010 targets for basic broadband accessibility, others demonstrated substantial progress, marking a notable shift towards fast and ultra-fast broadband. The surge in households exceeding 30 Mbps and 100 Mbps illustrates the transformative trajectory of digital connectivity. Regional analysis highlights dynamic shifts in internet access patterns, particularly evident in regions like North West Belgium and specific areas in Romania, emphasizing the importance of considering regional nuances in comprehending the evolving digital landscape. The positive trends at both country and regional levels reflect collective efforts and advancements in digital infrastructure and literacy initiatives.
 
-Depending on the type of usage, there is little distinction between the genders, with fairly similar trends across time; however, there is a significant variation between the different ages. With as large as a 50% gap, individuals between the ages 55 and 74 consistently consume far less internet than the younger population.
-With the European retirement age set at above 60 years, that age category makes up a large portion of the retired or other indicator type. As such, this conclusion can also be applied to the employment status. 
+Depending on the type of usage, there is little distinction between the genders, with fairly similar trends across time; however, there is a significant variation between the different ages. With as large as a 50% gap, individuals between the ages 55 and 74 consistently consume far less internet than the younger population. With the European retirement age set at above 60 years, that age category makes up a large portion of the retired or other indicator type. As such, this conclusion can also be applied to the employment status.
 
 Luxembourg, the Netherlands, and Denmark emerge as front-runners. The analysis within the countries and regions give results on different demographical aspects. Overall, the positive trends observed at both country and regional levels reflect the concerted efforts and advancements in digital infrastructure and literacy initiatives across European Union member states.
 
